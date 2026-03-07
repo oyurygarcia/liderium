@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mentoria Liderium — Introdução ao Método</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+<style>
+
+/* ─── RESET ─── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:       #0E1117;
+  --surface:  #161B24;
+  --card:     #1C2333;
+  --border:   rgba(255,255,255,0.07);
+  --accent:   #C4833A;
+  --accent2:  #5B8DEF;
+  --text:     #E8EAF0;
+  --muted:    #5A6478;
+  --subtle:   #8892A4;
+  --serif:    'DM Serif Display', Georgia, serif;
+  --sans:     'DM Sans', system-ui, sans-serif;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ─── PROGRESS BAR ─── */
+#progress {
+  position: fixed;
+  top: 0; left: 0;
+  height: 2px;
+  background: var(--accent);
+  width: 0%;
+  transition: width 0.15s;
+  z-index: 300;
+}
+
+/* ─── SLIDE COUNTER ─── */
+#slide-counter {
+  position: fixed;
+  bottom: 28px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  color: var(--muted);
+  z-index: 200;
+  pointer-events: none;
+  font-weight: 400;
+}
+
+/* ─── CLICK HINT ─── */
+#click-hint {
+  position: fixed;
+  bottom: 28px;
+  right: 36px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  z-index: 200;
+  pointer-events: none;
+  transition: opacity 0.4s;
+}
+#click-hint .hint-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  animation: pulse 1.8s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%,100% { opacity: 0.3; transform: scale(1); }
+  50%      { opacity: 1;   transform: scale(1.4); }
+}
+
+/* ─── BRAND ─── */
+#brand {
+  position: fixed;
+  bottom: 28px;
+  left: 36px;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+  z-index: 200;
+  pointer-events: none;
+}
+
+/* ─── SLIDE BASE ─── */
+.slide {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 80px 10vw 100px;
+  position: relative;
+  border-bottom: 1px solid var(--border);
+}
+
+.slide-tag {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 44px;
+}
+
+/* ─── REVEAL SYSTEM ─── */
+[data-step] {
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 0.55s ease, transform 0.55s ease;
+  pointer-events: none;
+}
+[data-step].revealed {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+[data-step="0"] {
+  opacity: 1;
+  transform: none;
+  pointer-events: auto;
+}
+
+/* ─── TYPOGRAPHY ─── */
+h1 {
+  font-family: var(--serif);
+  font-size: clamp(40px, 5vw, 66px);
+  line-height: 1.08;
+  color: var(--text);
+  margin-bottom: 20px;
+}
+h2 {
+  font-family: var(--serif);
+  font-size: clamp(28px, 3.2vw, 46px);
+  line-height: 1.12;
+  color: var(--text);
+  margin-bottom: 24px;
+}
+.lead {
+  font-size: clamp(16px, 1.5vw, 20px);
+  line-height: 1.7;
+  color: var(--subtle);
+  max-width: 620px;
+  font-weight: 300;
+  margin-bottom: 12px;
+}
+.accent-line {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: clamp(18px, 1.7vw, 24px);
+  color: var(--accent);
+  line-height: 1.4;
+}
+.divider {
+  width: 40px; height: 2px;
+  background: var(--accent);
+  margin-bottom: 36px;
+  flex-shrink: 0;
+}
+
+/* ─── COVER SLIDE ─── */
+.slide-cover { background: var(--bg); }
+.cover-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(196,131,58,0.12);
+  border: 1px solid rgba(196,131,58,0.3);
+  color: var(--accent);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  padding: 7px 18px;
+  border-radius: 100px;
+  margin-bottom: 44px;
+}
+.cover-author {
+  margin-top: 48px;
+  font-size: 14px;
+  color: var(--muted);
+  font-weight: 300;
+}
+.cover-author strong { color: var(--subtle); font-weight: 500; }
+
+/* ─── ITEM LIST ─── */
+.item-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 580px;
+}
+.item-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  font-size: clamp(14px, 1.3vw, 17px);
+  line-height: 1.55;
+  color: var(--subtle);
+  font-weight: 300;
+}
+.item-list li .dot {
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--accent);
+  margin-top: 9px;
+  flex-shrink: 0;
+}
+
+/* ─── TWO-COL ─── */
+.two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 36px 56px;
+  max-width: 760px;
+}
+.col-label {
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 500;
+  margin-bottom: 16px;
+}
+
+/* ─── PILLS ─── */
+.pill-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.pill {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  padding: 9px 20px;
+  font-size: 13px;
+  color: var(--subtle);
+  font-weight: 400;
+}
+
+/* ─── CEBOLA SVG ─── */
+.cebola-wrap {
+  display: flex;
+  align-items: center;
+  gap: 56px;
+  flex-wrap: wrap;
+}
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 13px;
+  color: var(--subtle);
+  font-weight: 300;
+  margin-bottom: 10px;
+}
+.legend-dot {
+  width: 9px; height: 9px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* ─── MODULE ACCORDION (Slide 05) ─── */
+.module-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: 680px;
+  width: 100%;
+}
+.module-item {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  transition: border-color 0.3s;
+  cursor: pointer;
+}
+.module-item:hover { border-color: rgba(196,131,58,0.3); }
+.module-item.open  { border-color: rgba(196,131,58,0.5); }
+.module-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 24px;
+  user-select: none;
+}
+.module-left {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+.module-num {
+  font-family: var(--serif);
+  font-size: 24px;
+  color: var(--accent);
+  line-height: 1;
+  min-width: 28px;
+}
+.module-title {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text);
+}
+.module-arrow {
+  width: 18px; height: 18px;
+  color: var(--muted);
+  transition: transform 0.35s ease, color 0.25s;
+  flex-shrink: 0;
+}
+.module-item.open .module-arrow {
+  transform: rotate(180deg);
+  color: var(--accent);
+}
+.module-body {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.45s cubic-bezier(0.4,0,0.2,1);
+}
+.module-body-inner {
+  margin: 0 24px 16px 70px;
+  padding-top: 16px;
+  font-size: 14px;
+  line-height: 1.65;
+  color: var(--subtle);
+  font-weight: 300;
+  border-top: 1px solid var(--border);
+}
+
+/* ─── HIGHLIGHT BOX ─── */
+.highlight-box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 12px;
+  padding: 36px 40px;
+  max-width: 640px;
+}
+.highlight-box h2 { margin-bottom: 14px; }
+.highlight-box .lead { margin-bottom: 0; }
+
+/* ─── REC CARDS ─── */
+.rec-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 22px 26px;
+  max-width: 580px;
+  margin-bottom: 10px;
+}
+.rec-num {
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+.rec-title {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+.rec-desc {
+  font-size: 13px;
+  color: var(--muted);
+  font-weight: 300;
+  line-height: 1.55;
+}
+
+/* ─── FINAL SLIDE ─── */
+.slide-final { background: var(--surface); }
+.final-badge {
+  display: inline-block;
+  background: rgba(196,131,58,0.12);
+  border: 1px solid rgba(196,131,58,0.25);
+  color: var(--accent);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  padding: 6px 16px;
+  border-radius: 100px;
+  margin-bottom: 32px;
+}
+
+/* ─── RESPONSIVE ─── */
+@media (max-width: 680px) {
+  .slide { padding: 64px 6vw 90px; }
+  .two-col { grid-template-columns: 1fr; }
+  .cebola-wrap { flex-direction: column; }
+  .highlight-box { padding: 28px 24px; }
+}
+
+</style>
+</head>
+<body>
+
+<div id="progress"></div>
+<div id="brand">Mentoria Liderium</div>
+<div id="slide-counter"></div>
+<div id="click-hint"><div class="hint-dot"></div>clique para avançar</div>
+
+<!-- ══ SLIDE 0 — CAPA ══ -->
+<div class="slide slide-cover" data-slide="0">
+  <div data-step="0">
+    <div class="slide-tag">Introdução ao Método</div>
+    <span class="cover-badge">Mentoria Liderium</span>
+    <h1>Bem-vindo à<br>sua jornada<br>estratégica.</h1>
+  </div>
+  <p class="lead" data-step="1">Um programa para desenvolver líderes que sabem navegar, influenciar e crescer dentro das organizações.</p>
+  <p class="cover-author" data-step="2">por <strong>Oyury Garcia</strong></p>
+</div>
+
+<!-- ══ SLIDE 1 — O PROBLEMA ══ -->
+<div class="slide" data-slide="1">
+  <div data-step="0">
+    <div class="slide-tag">01 — O problema</div>
+    <div class="divider"></div>
+    <h2>A maioria das carreiras não trava<br>por falta de competência.</h2>
+  </div>
+  <p class="accent-line" data-step="1">Trava por falta de posicionamento estratégico.</p>
+  <p class="lead" data-step="2" style="margin-top:20px;">Executivos excepcionalmente competentes permanecem invisíveis enquanto outros com menos entrega avançam — porque dominam um jogo que nunca foi ensinado formalmente.</p>
+</div>
+
+<!-- ══ SLIDE 2 — LIDERANÇA ESTRATÉGICA ══ -->
+<div class="slide" data-slide="2">
+  <div data-step="0">
+    <div class="slide-tag">02 — Liderança estratégica</div>
+    <div class="divider"></div>
+    <h2>O que diferencia um líder estratégico</h2>
+  </div>
+  <p class="lead" data-step="1">Não é apenas entregar resultados. É saber <em>ler o ambiente</em>, posicionar-se e influenciar o sistema ao redor.</p>
+  <div class="pill-row" data-step="2">
+    <span class="pill">Visão sistêmica</span>
+    <span class="pill">Leitura política</span>
+    <span class="pill">Influência</span>
+    <span class="pill">Narrativa</span>
+    <span class="pill">Capital político</span>
+  </div>
+</div>
+
+<!-- ══ SLIDE 3 — OBJETIVO + RESULTADOS ══ -->
+<div class="slide" data-slide="3">
+  <div data-step="0">
+    <div class="slide-tag">03 — O objetivo da mentoria</div>
+    <div class="divider"></div>
+    <h2>O que você vai desenvolver —<br>e o que muda na prática</h2>
+  </div>
+  <div class="two-col" style="margin-top:32px;">
+    <div data-step="1">
+      <p class="col-label">Você vai desenvolver</p>
+      <ul class="item-list">
+        <li><span class="dot"></span>Pensar estrategicamente</li>
+        <li><span class="dot"></span>Ler o ambiente político</li>
+        <li><span class="dot"></span>Posicionar-se com clareza</li>
+        <li><span class="dot"></span>Comunicar-se como executivo</li>
+        <li><span class="dot"></span>Construir narrativa</li>
+        <li><span class="dot"></span>Gerar capital político</li>
+      </ul>
+    </div>
+    <div data-step="2">
+      <p class="col-label">O resultado prático</p>
+      <ul class="item-list">
+        <li><span class="dot"></span>Maior visibilidade</li>
+        <li><span class="dot"></span>Mais reconhecimento</li>
+        <li><span class="dot"></span>Trabalho com mais impacto</li>
+        <li><span class="dot"></span>Percepção positiva da liderança</li>
+        <li><span class="dot"></span>Destravar dificuldades políticas</li>
+        <li><span class="dot"></span>Mais oportunidades de crescimento</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SLIDE 4 — CEBOLA ══ -->
+<div class="slide" data-slide="4">
+  <div data-step="0">
+    <div class="slide-tag">04 — A lógica do método</div>
+    <div class="divider"></div>
+    <h2>O método é construído em camadas</h2>
+  </div>
+  <p class="lead" data-step="1">Cada camada apoia a seguinte. Você começa pelo centro — a mentalidade — e expande progressivamente sua capacidade de influência.</p>
+  <div class="cebola-wrap" data-step="2" style="margin-top:36px;">
+    <svg width="240" height="240" viewBox="0 0 240 240" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="120" cy="120" r="116" fill="#1C2333" stroke="rgba(255,255,255,0.07)" stroke-width="1"/>
+      <circle cx="120" cy="120" r="96"  fill="#202840" stroke="rgba(255,255,255,0.07)" stroke-width="1"/>
+      <circle cx="120" cy="120" r="76"  fill="#243050" stroke="rgba(255,255,255,0.07)" stroke-width="1"/>
+      <circle cx="120" cy="120" r="56"  fill="#1A2E5A" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+      <circle cx="120" cy="120" r="36"  fill="#163060" stroke="rgba(255,255,255,0.10)" stroke-width="1"/>
+      <circle cx="120" cy="120" r="17"  fill="#C4833A"/>
+      <text x="120" y="14"  text-anchor="middle" font-family="DM Sans,sans-serif" font-size="8" fill="#5A6478" letter-spacing="0.1em">OPORTUNIDADES</text>
+      <text x="120" y="35"  text-anchor="middle" font-family="DM Sans,sans-serif" font-size="8" fill="#6A7488" letter-spacing="0.1em">NARRATIVA</text>
+      <text x="120" y="57"  text-anchor="middle" font-family="DM Sans,sans-serif" font-size="8" fill="#7A84A0" letter-spacing="0.09em">COMUNICAÇÃO</text>
+      <text x="120" y="78"  text-anchor="middle" font-family="DM Sans,sans-serif" font-size="8" fill="#9AA0BC" letter-spacing="0.08em">CAPITAL POLÍTICO</text>
+      <text x="120" y="116" text-anchor="middle" font-family="DM Sans,sans-serif" font-size="7" fill="#fff" font-weight="500" letter-spacing="0.06em">MENTALIDADE</text>
+      <text x="120" y="127" text-anchor="middle" font-family="DM Sans,sans-serif" font-size="7" fill="#fff" font-weight="500" letter-spacing="0.06em">ESTRATÉGICA</text>
+    </svg>
+    <div>
+      <div class="legend-item"><div class="legend-dot" style="background:#C4833A"></div>Mentalidade estratégica</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#163060"></div>Capital político e posicionamento</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#1A2E5A"></div>Comunicação executiva</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#243050"></div>Leitura de cenário político</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#202840"></div>Construção de narrativa</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#1C2333; border:1px solid rgba(255,255,255,0.1)"></div>Criando oportunidades sistêmicas</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SLIDE 5 — MÓDULOS ACCORDION ══ -->
+<div class="slide" data-slide="5">
+  <div data-step="0">
+    <div class="slide-tag">05 — Os módulos</div>
+    <div class="divider"></div>
+    <h2>A trilha de aprendizagem</h2>
+  </div>
+
+  <div class="module-list" data-step="1" style="margin-top:28px;">
+
+    <div class="module-item" onclick="toggleModule(this)">
+      <div class="module-header">
+        <div class="module-left">
+          <span class="module-num">1</span>
+          <span class="module-title">Mentalidade estratégica</span>
+        </div>
+        <svg class="module-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="module-body">
+        <div class="module-body-inner">
+          A base do método. Desenvolvemos os 7 princípios que fundamentam a atuação de um líder estratégico — de autorresponsabilidade à visão sistêmica. Sem essa camada, as demais ferramentas não funcionam.
+        </div>
+      </div>
+    </div>
+
+    <div class="module-item" onclick="toggleModule(this)">
+      <div class="module-header">
+        <div class="module-left">
+          <span class="module-num">2</span>
+          <span class="module-title">Capital político e posicionamento</span>
+        </div>
+        <svg class="module-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="module-body">
+        <div class="module-body-inner">
+          Entendemos como funciona o jogo de poder nas organizações. Mapeamos stakeholders, construímos capital político — a combinação de relacionamento, percepção e influência — e aprendemos a negociar com o método T-PIAF.
+        </div>
+      </div>
+    </div>
+
+    <div class="module-item" onclick="toggleModule(this)">
+      <div class="module-header">
+        <div class="module-left">
+          <span class="module-num">3</span>
+          <span class="module-title">Comunicação executiva</span>
+        </div>
+        <svg class="module-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="module-body">
+        <div class="module-body-inner">
+          Aprendemos a responder as 4 perguntas invisíveis que todo decisor faz antes de ouvir qualquer proposta. A diferença entre comunicação operacional e executiva é o que separa quem é percebido como líder de quem é percebido como executor.
+        </div>
+      </div>
+    </div>
+
+    <div class="module-item" onclick="toggleModule(this)">
+      <div class="module-header">
+        <div class="module-left">
+          <span class="module-num">4</span>
+          <span class="module-title">Leitura de cenário político</span>
+        </div>
+        <svg class="module-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="module-body">
+        <div class="module-body-inner">
+          Desenvolvemos a capacidade de ler sistemas, atores e timing — a tríade do cenário político. Quem consegue antecipar movimentos organizacionais age de forma estratégica, não reativa.
+        </div>
+      </div>
+    </div>
+
+    <div class="module-item" onclick="toggleModule(this)">
+      <div class="module-header">
+        <div class="module-left">
+          <span class="module-num">5</span>
+          <span class="module-title">Construção de narrativa</span>
+        </div>
+        <svg class="module-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="module-body">
+        <div class="module-body-inner">
+          Construímos a estrutura narrativa executiva: contexto → ação → impacto → significado → próximos passos. A narrativa é o que transforma resultados em percepção de liderança dentro da organização.
+        </div>
+      </div>
+    </div>
+
+    <div class="module-item" onclick="toggleModule(this)">
+      <div class="module-header">
+        <div class="module-left">
+          <span class="module-num">6</span>
+          <span class="module-title">Criando oportunidades de maneira sistêmica</span>
+        </div>
+        <svg class="module-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="module-body">
+        <div class="module-body-inner">
+          Integramos todas as camadas do método em um loop sistêmico de geração de oportunidades. O objetivo é sair da reatividade e construir um sistema pessoal de crescimento contínuo dentro da organização.
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══ SLIDE 6 — AS AULAS ══ -->
+<div class="slide" data-slide="6">
+  <div data-step="0">
+    <div class="slide-tag">06 — As aulas</div>
+    <div class="divider"></div>
+    <h2>Como funcionam as aulas</h2>
+  </div>
+  <p class="lead" data-step="1">As aulas são curtas e diretas — cada uma aborda um conceito específico que você pode aplicar imediatamente.</p>
+  <ul class="item-list" data-step="2" style="margin-top:8px;">
+    <li><span class="dot"></span>Um conceito principal por aula</li>
+    <li><span class="dot"></span>Framework visual para fixar o modelo</li>
+    <li><span class="dot"></span>Exemplos práticos do ambiente corporativo</li>
+    <li><span class="dot"></span>Aplicação direta na sua realidade</li>
+  </ul>
+</div>
+
+<!-- ══ SLIDE 7 — AS TAREFAS ══ -->
+<div class="slide" data-slide="7">
+  <div data-step="0">
+    <div class="slide-tag">07 — As tarefas</div>
+    <div class="divider"></div>
+    <h2>Como funcionam as tarefas</h2>
+  </div>
+  <p class="lead" data-step="1">Ao final de cada módulo você terá tarefas práticas. É nelas que o método se aplica à sua realidade profissional.</p>
+  <div class="highlight-box" data-step="2">
+    <h2>A execução é o que transforma conhecimento em resultado.</h2>
+    <p class="lead">As tarefas são entregues diretamente para o mentor — isso garante que você avance com clareza e direção.</p>
+  </div>
+</div>
+
+<!-- ══ SLIDE 8 — RECOMENDAÇÕES ══ -->
+<div class="slide" data-slide="8">
+  <div data-step="0">
+    <div class="slide-tag">08 — Recomendações</div>
+    <div class="divider"></div>
+    <h2>Como aproveitar<br>melhor a mentoria</h2>
+  </div>
+  <div data-step="1">
+    <div class="rec-card">
+      <div class="rec-num">01</div>
+      <div class="rec-title">Assista com atenção</div>
+      <div class="rec-desc">Cada aula carrega um modelo mental que acumula com o anterior.</div>
+    </div>
+  </div>
+  <div data-step="2">
+    <div class="rec-card">
+      <div class="rec-num">02</div>
+      <div class="rec-title">Execute as tarefas</div>
+      <div class="rec-desc">Sem execução, não há transformação de carreira.</div>
+    </div>
+  </div>
+  <div data-step="3">
+    <div class="rec-card">
+      <div class="rec-num">03</div>
+      <div class="rec-title">Reflita sobre sua realidade</div>
+      <div class="rec-desc">Conecte cada conceito ao seu contexto organizacional concreto.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SLIDE 9 — INÍCIO ══ -->
+<div class="slide slide-final" data-slide="9">
+  <div data-step="0">
+    <div class="slide-tag">09 — Começando</div>
+    <div class="divider"></div>
+    <span class="final-badge">Módulo 1</span>
+    <h2>Comece agora pelo<br>Módulo 1</h2>
+  </div>
+  <p class="accent-line" data-step="1">Mentalidade estratégica</p>
+  <p class="lead" data-step="2" style="margin-top:20px; max-width:500px;">A base de tudo começa aqui — antes de qualquer estratégia, posicionamento ou ferramenta, existe um modelo mental que precisa ser construído.</p>
+</div>
+
+
+<script>
+/* ════ REVEAL ENGINE ════
+   Click anywhere → revela próximo step do slide atual.
+   Quando todos os steps estão revelados → scrolla pro próximo slide.
+   Clique em module-item → passa para toggleModule (não avança slide).
+*/
+
+const slides     = Array.from(document.querySelectorAll('[data-slide]'));
+const bar        = document.getElementById('progress');
+const counter    = document.getElementById('slide-counter');
+const hint       = document.getElementById('click-hint');
+const totalSlides = slides.length;
+
+// Mapeia steps por slide (exclui step=0 que já começa visível)
+const slideSteps = slides.map(slide =>
+  Array.from(slide.querySelectorAll('[data-step]'))
+    .filter(el => el.dataset.step !== '0')
+    .sort((a, b) => +a.dataset.step - +b.dataset.step)
+);
+
+function getActiveSlideIdx() {
+  let best = 0, bestScore = -Infinity;
+  slides.forEach((s, i) => {
+    const r = s.getBoundingClientRect();
+    const visible = Math.min(r.bottom, window.innerHeight) - Math.max(r.top, 0);
+    if (visible > bestScore) { bestScore = visible; best = i; }
+  });
+  return best;
+}
+
+function revealNext(idx) {
+  const unrevealed = slideSteps[idx].find(el => !el.classList.contains('revealed'));
+  if (unrevealed) { unrevealed.classList.add('revealed'); return true; }
+  return false;
+}
+
+function goToSlide(idx) {
+  slides[idx].scrollIntoView({ behavior: 'smooth' });
+}
+
+function updateHUD(idx) {
+  counter.textContent = `${String(idx + 1).padStart(2,'0')} / ${String(totalSlides).padStart(2,'0')}`;
+  bar.style.width = (idx / (totalSlides - 1) * 100) + '%';
+  hint.style.opacity = idx === totalSlides - 1 ? '0' : '1';
+}
+
+document.addEventListener('click', e => {
+  // Accordion clicks — não avança
+  if (e.target.closest('.module-item')) return;
+
+  const idx = getActiveSlideIdx();
+  updateHUD(idx);
+
+  const advanced = revealNext(idx);
+  if (!advanced && idx < totalSlides - 1) {
+    goToSlide(idx + 1);
+    setTimeout(() => updateHUD(getActiveSlideIdx()), 700);
+  }
+});
+
+window.addEventListener('scroll', () => updateHUD(getActiveSlideIdx()), { passive: true });
+
+updateHUD(0);
+
+/* ════ MODULE ACCORDION ════ */
+function toggleModule(item) {
+  const body  = item.querySelector('.module-body');
+  const inner = item.querySelector('.module-body-inner');
+  const isOpen = item.classList.contains('open');
+
+  // Fecha todos
+  document.querySelectorAll('.module-item.open').forEach(m => {
+    m.classList.remove('open');
+    m.querySelector('.module-body').style.maxHeight = '0';
+  });
+
+  // Abre o clicado se estava fechado
+  if (!isOpen) {
+    item.classList.add('open');
+    body.style.maxHeight = (inner.offsetHeight + 56) + 'px';
+  }
+}
+</script>
+</body>
+</html>

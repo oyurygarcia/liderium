@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mentoria Liderium — Introdução ao Método</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+<style>
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:      #0E1117;
+  --surface: #161B24;
+  --card:    #1C2333;
+  --border:  rgba(255,255,255,0.07);
+  --accent:  #C4833A;
+  --text:    #E8EAF0;
+  --muted:   #4A5568;
+  --subtle:  #8892A4;
+  --serif:   'DM Serif Display', Georgia, serif;
+  --sans:    'DM Sans', system-ui, sans-serif;
+}
+
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--text);
+  overflow-x: hidden;
+}
+
+/* ── PROGRESS ── */
+#progress {
+  position: fixed; top: 0; left: 0;
+  height: 2px; background: var(--accent);
+  width: 0%; transition: width 0.2s; z-index: 300;
+}
+
+/* ── HUD ── */
+#hud {
+  position: fixed; bottom: 28px; left: 50%;
+  transform: translateX(-50%);
+  display: flex; align-items: center; gap: 20px;
+  z-index: 200; pointer-events: none;
+}
+#slide-counter {
+  font-size: 12px; letter-spacing: 0.16em;
+  color: var(--muted); font-weight: 400;
+}
+/* nav arrows */
+.nav-btn {
+  pointer-events: all;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  width: 34px; height: 34px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  color: var(--subtle);
+  transition: border-color 0.2s, color 0.2s;
+}
+.nav-btn:hover { border-color: var(--accent); color: var(--accent); }
+.nav-btn svg { width: 14px; height: 14px; }
+
+/* ── CLICK HINT ── */
+#click-hint {
+  position: fixed; bottom: 28px; right: 36px;
+  display: flex; align-items: center; gap: 8px;
+  font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--muted); z-index: 200; pointer-events: none;
+  transition: opacity 0.4s;
+}
+.hint-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--accent);
+  animation: pulse 1.8s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%,100% { opacity: 0.3; transform: scale(1); }
+  50%      { opacity: 1;   transform: scale(1.4); }
+}
+
+/* ── BRAND ── */
+#brand {
+  position: fixed; bottom: 28px; left: 36px;
+  font-size: 11px; letter-spacing: 0.1em;
+  color: var(--muted); z-index: 200; pointer-events: none;
+}
+
+/* ── SLIDE BASE ── */
+.slide {
+  min-height: 100vh;
+  display: flex; flex-direction: column; justify-content: center;
+  padding: 80px 8vw 100px;
+  border-bottom: 1px solid var(--border);
+  position: relative;
+}
+
+.slide-tag {
+  font-size: 11px; font-weight: 500;
+  letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--muted); margin-bottom: 40px;
+}
+.divider {
+  width: 44px; height: 2px;
+  background: var(--accent); margin-bottom: 32px;
+}
+
+/* ── REVEAL SYSTEM ── */
+[data-step] {
+  opacity: 0; transform: translateY(18px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+  pointer-events: none;
+}
+[data-step].revealed {
+  opacity: 1; transform: translateY(0);
+  pointer-events: auto;
+}
+[data-step="0"] { opacity: 1; transform: none; pointer-events: auto; }
+
+/* ── TYPOGRAPHY ── */
+h1 {
+  font-family: var(--serif);
+  font-size: clamp(42px, 5.5vw, 72px);
+  line-height: 1.06; color: var(--text); margin-bottom: 20px;
+}
+h2 {
+  font-family: var(--serif);
+  font-size: clamp(30px, 3.5vw, 52px);
+  line-height: 1.1; color: var(--text); margin-bottom: 24px;
+}
+.lead {
+  font-size: clamp(18px, 1.7vw, 23px);
+  line-height: 1.65; color: var(--subtle);
+  max-width: 700px; font-weight: 300;
+}
+.accent-line {
+  font-family: var(--serif); font-style: italic;
+  font-size: clamp(20px, 2vw, 28px);
+  color: var(--accent); line-height: 1.4;
+}
+
+/* ── COVER ── */
+.slide-cover { background: var(--bg); }
+.cover-badge {
+  display: inline-flex; align-items: center;
+  background: rgba(196,131,58,0.12);
+  border: 1px solid rgba(196,131,58,0.3);
+  color: var(--accent); font-size: 11px; font-weight: 500;
+  letter-spacing: 0.2em; text-transform: uppercase;
+  padding: 7px 18px; border-radius: 100px; margin-bottom: 40px;
+}
+.cover-author {
+  margin-top: 44px; font-size: 16px;
+  color: var(--muted); font-weight: 300;
+}
+.cover-author strong { color: var(--subtle); font-weight: 500; }
+
+/* ── ITEM LIST ── */
+.item-list {
+  list-style: none;
+  display: flex; flex-direction: column; gap: 16px;
+}
+.item-list li {
+  display: flex; align-items: flex-start; gap: 16px;
+  font-size: clamp(16px, 1.5vw, 20px);
+  line-height: 1.5; color: var(--subtle); font-weight: 300;
+}
+.item-list li .dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--accent); margin-top: 10px; flex-shrink: 0;
+}
+
+/* ── PILLS ── */
+.pill-row { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 36px; }
+.pill {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 100px; padding: 12px 26px;
+  font-size: clamp(15px, 1.3vw, 18px);
+  color: var(--subtle); font-weight: 400;
+}
+
+/* ── TWO-COL (slide 3) ── */
+.two-col-reveal {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 40px 60px; max-width: 900px; margin-top: 36px;
+}
+.col-label {
+  font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--accent); font-weight: 500; margin-bottom: 20px;
+}
+
+/* ── CEBOLA SLIDE 4 ── */
+.cebola-container {
+  display: flex; align-items: center; justify-content: center;
+  gap: 64px; flex-wrap: wrap; margin-top: 20px;
+}
+.cebola-img {
+  width: min(380px, 40vw);
+  border-radius: 16px;
+  box-shadow: 0 8px 48px rgba(0,0,0,0.5);
+}
+.cebola-legend-col { display: flex; flex-direction: column; gap: 14px; }
+.legend-row {
+  display: flex; align-items: center; gap: 14px;
+  font-size: clamp(15px, 1.3vw, 18px);
+  color: var(--subtle); font-weight: 300;
+}
+.legend-dot {
+  width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
+}
+
+/* ── MODULES SLIDE 5 — side-by-side layout ── */
+.modules-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 48px;
+  max-width: 1000px;
+  margin-top: 28px;
+  align-items: start;
+}
+.module-card-list { display: flex; flex-direction: column; gap: 10px; }
+
+.mod-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 18px 22px;
+  display: flex; align-items: center; gap: 18px;
+  cursor: pointer;
+  transition: border-color 0.3s, opacity 0.4s, box-shadow 0.3s;
+  /* start hidden — managed by data-step */
+}
+.mod-card.past {
+  opacity: 0.35;
+  border-color: rgba(255,255,255,0.04);
+  box-shadow: none;
+  cursor: default;
+}
+.mod-card.active {
+  border-color: rgba(196,131,58,0.6);
+  box-shadow: 0 0 0 1px rgba(196,131,58,0.2);
+  opacity: 1;
+}
+.mod-card:not(.past):not(.active):hover {
+  border-color: rgba(196,131,58,0.3);
+}
+.mod-num {
+  font-family: var(--serif);
+  font-size: 26px; color: var(--accent); line-height: 1; min-width: 28px;
+}
+.mod-title {
+  font-size: clamp(14px, 1.2vw, 16px);
+  font-weight: 500; color: var(--text);
+}
+.mod-card.past .mod-num,
+.mod-card.past .mod-title { color: var(--muted); }
+
+/* right-side description panel */
+.module-desc-panel {
+  background: var(--surface);
+  border: 1px solid rgba(196,131,58,0.25);
+  border-left: 3px solid var(--accent);
+  border-radius: 12px;
+  padding: 32px 36px;
+  opacity: 0; transform: translateX(14px);
+  transition: opacity 0.45s ease, transform 0.45s ease;
+  pointer-events: none;
+}
+.module-desc-panel.visible {
+  opacity: 1; transform: translateX(0); pointer-events: auto;
+}
+.desc-tag {
+  font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--accent); font-weight: 500; margin-bottom: 14px;
+}
+.desc-title {
+  font-family: var(--serif);
+  font-size: clamp(20px, 2vw, 28px);
+  color: var(--text); margin-bottom: 16px; line-height: 1.2;
+}
+.desc-body {
+  font-size: clamp(15px, 1.3vw, 18px);
+  color: var(--subtle); font-weight: 300; line-height: 1.65;
+}
+
+/* ── HIGHLIGHT BOX ── */
+.highlight-box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 12px; padding: 40px 44px;
+  max-width: 740px; margin-top: 28px;
+}
+.highlight-box h2 { font-size: clamp(24px,2.5vw,36px); margin-bottom: 14px; }
+.highlight-box .lead { max-width: 100%; }
+
+/* ── REC CARDS ── */
+.rec-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 12px; padding: 26px 32px;
+  max-width: 700px; margin-bottom: 12px;
+}
+.rec-num {
+  font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--accent); font-weight: 500; margin-bottom: 8px;
+}
+.rec-title { font-size: clamp(17px,1.5vw,21px); font-weight: 500; color: var(--text); margin-bottom: 6px; }
+.rec-desc  { font-size: clamp(14px,1.2vw,17px); color: var(--muted); font-weight: 300; line-height: 1.55; }
+
+/* ── FINAL ── */
+.slide-final { background: var(--surface); }
+.final-badge {
+  display: inline-block;
+  background: rgba(196,131,58,0.12);
+  border: 1px solid rgba(196,131,58,0.25);
+  color: var(--accent); font-size: 11px; font-weight: 500;
+  letter-spacing: 0.18em; text-transform: uppercase;
+  padding: 6px 16px; border-radius: 100px; margin-bottom: 28px;
+}
+
+@media (max-width: 760px) {
+  .two-col-reveal { grid-template-columns: 1fr; }
+  .modules-layout  { grid-template-columns: 1fr; }
+  .cebola-container { flex-direction: column; }
+  .cebola-img { width: min(300px, 80vw); }
+}
+</style>
+</head>
+<body>
+
+<div id="progress"></div>
+<div id="brand">Mentoria Liderium</div>
+<div id="click-hint"><div class="hint-dot"></div>clique para avançar</div>
+
+<div id="hud">
+  <button class="nav-btn" id="btn-prev" onclick="navigate(-1)" title="Voltar">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+  </button>
+  <span id="slide-counter">01 / 10</span>
+  <button class="nav-btn" id="btn-next" onclick="navigate(1)" title="Avançar">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+  </button>
+</div>
+
+<!-- ══ SLIDE 0 — CAPA ══ -->
+<div class="slide slide-cover" data-slide="0">
+  <div data-step="0">
+    <div class="slide-tag">Introdução ao Método</div>
+    <span class="cover-badge">Mentoria Liderium</span>
+    <h1>Bem-vindo à<br>sua jornada<br>estratégica.</h1>
+  </div>
+  <p class="lead" data-step="1">Um programa para desenvolver líderes que sabem navegar, influenciar e crescer dentro das organizações.</p>
+  <p class="cover-author" data-step="2">por <strong>Oyury Garcia</strong></p>
+</div>
+
+<!-- ══ SLIDE 1 — O PROBLEMA ══ -->
+<div class="slide" data-slide="1">
+  <div data-step="0">
+    <div class="slide-tag">01 — O problema</div>
+    <div class="divider"></div>
+    <h2>A maioria das carreiras não trava<br>por falta de competência.</h2>
+  </div>
+  <p class="accent-line" data-step="1" style="margin-bottom:28px;">Trava por falta de posicionamento estratégico.</p>
+  <p class="lead" data-step="2">Executivos excepcionalmente competentes permanecem invisíveis enquanto outros com menos entrega avançam — porque dominam um jogo que nunca foi ensinado formalmente.</p>
+</div>
+
+<!-- ══ SLIDE 2 — LIDERANÇA ESTRATÉGICA ══ -->
+<div class="slide" data-slide="2">
+  <div data-step="0">
+    <div class="slide-tag">02 — Liderança estratégica</div>
+    <div class="divider"></div>
+    <h2>O que diferencia<br>um líder estratégico</h2>
+  </div>
+  <p class="lead" data-step="1" style="margin-bottom:0;">Não é apenas entregar resultados. É saber <em>ler o ambiente</em>, posicionar-se e influenciar o sistema ao redor.</p>
+  <!-- pills one by one -->
+  <div class="pill-row" style="margin-top:40px; flex-direction:column; gap:14px; align-items:flex-start; max-width:600px;">
+    <div data-step="2"><span class="pill" style="font-size:clamp(16px,1.5vw,20px); padding:14px 30px;">Visão sistêmica</span></div>
+    <div data-step="3"><span class="pill" style="font-size:clamp(16px,1.5vw,20px); padding:14px 30px;">Leitura política do ambiente</span></div>
+    <div data-step="4"><span class="pill" style="font-size:clamp(16px,1.5vw,20px); padding:14px 30px;">Capacidade de influência</span></div>
+    <div data-step="5"><span class="pill" style="font-size:clamp(16px,1.5vw,20px); padding:14px 30px;">Construção de narrativa</span></div>
+    <div data-step="6"><span class="pill" style="font-size:clamp(16px,1.5vw,20px); padding:14px 30px;">Capital político</span></div>
+  </div>
+</div>
+
+<!-- ══ SLIDE 3 — OBJETIVO ══ -->
+<div class="slide" data-slide="3">
+  <div data-step="0">
+    <div class="slide-tag">03 — O objetivo da mentoria</div>
+    <div class="divider"></div>
+    <h2>O que você vai desenvolver —<br>e o que muda na prática</h2>
+  </div>
+  <div class="two-col-reveal">
+    <!-- coluna esquerda: label sempre, itens um a um -->
+    <div>
+      <div data-step="1"><p class="col-label">Você vai desenvolver</p></div>
+      <ul class="item-list" style="margin-top:4px;">
+        <li data-step="2"><span class="dot"></span>Pensar estrategicamente</li>
+        <li data-step="3"><span class="dot"></span>Ler o ambiente político</li>
+        <li data-step="4"><span class="dot"></span>Posicionar-se com clareza</li>
+        <li data-step="5"><span class="dot"></span>Comunicar-se como executivo</li>
+        <li data-step="6"><span class="dot"></span>Construir narrativa</li>
+        <li data-step="7"><span class="dot"></span>Gerar capital político</li>
+      </ul>
+    </div>
+    <!-- coluna direita: label + itens um a um -->
+    <div>
+      <div data-step="8"><p class="col-label">O resultado prático</p></div>
+      <ul class="item-list" style="margin-top:4px;">
+        <li data-step="9"><span class="dot"></span>Maior visibilidade</li>
+        <li data-step="10"><span class="dot"></span>Mais reconhecimento</li>
+        <li data-step="11"><span class="dot"></span>Trabalho com mais impacto</li>
+        <li data-step="12"><span class="dot"></span>Percepção positiva da liderança</li>
+        <li data-step="13"><span class="dot"></span>Destravar dificuldades políticas</li>
+        <li data-step="14"><span class="dot"></span>Mais oportunidades de crescimento</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SLIDE 4 — CEBOLA ══ -->
+<div class="slide" data-slide="4">
+  <div data-step="0">
+    <div class="slide-tag">04 — A lógica do método</div>
+    <div class="divider"></div>
+    <h2>O método é construído em camadas</h2>
+  </div>
+  <p class="lead" data-step="1">Cada camada apoia a seguinte. Você começa pelo centro — a mentalidade — e expande progressivamente sua capacidade de influência.</p>
+  <div class="cebola-container" data-step="2">
+    <!-- SVG recreating the Cebola Estratégica concept -->
+    <svg width="360" height="360" viewBox="0 0 360 360" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <radialGradient id="g1" cx="50%" cy="40%" r="50%">
+          <stop offset="0%" stop-color="#2A5298"/>
+          <stop offset="100%" stop-color="#1a3a6e"/>
+        </radialGradient>
+        <radialGradient id="g2" cx="50%" cy="40%" r="50%">
+          <stop offset="0%" stop-color="#3a7a3a"/>
+          <stop offset="100%" stop-color="#1e5c1e"/>
+        </radialGradient>
+        <radialGradient id="g3" cx="50%" cy="40%" r="50%">
+          <stop offset="0%" stop-color="#C4833A"/>
+          <stop offset="100%" stop-color="#8B5A20"/>
+        </radialGradient>
+        <radialGradient id="g4" cx="50%" cy="35%" r="55%">
+          <stop offset="0%" stop-color="#E8B84B"/>
+          <stop offset="100%" stop-color="#C4833A"/>
+        </radialGradient>
+        <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+          <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="rgba(0,0,0,0.5)"/>
+        </filter>
+      </defs>
+
+      <!-- Outer ring: Mentalidade (blue) -->
+      <ellipse cx="180" cy="200" rx="168" ry="148" fill="url(#g1)" filter="url(#shadow)"/>
+      <!-- Ring 2: Mapa Político (green) -->
+      <ellipse cx="180" cy="200" rx="132" ry="114" fill="url(#g2)"/>
+      <!-- Ring 3: Posicionamento (amber) -->
+      <ellipse cx="180" cy="200" rx="96" ry="82" fill="url(#g3)"/>
+      <!-- Core: Capital Político (gold) -->
+      <ellipse cx="180" cy="200" rx="60" ry="50" fill="url(#g4)"/>
+      <!-- Glow on core -->
+      <ellipse cx="180" cy="192" rx="28" ry="22" fill="rgba(255,220,80,0.35)"/>
+
+      <!-- Flag -->
+      <line x1="180" y1="185" x2="180" y2="155" stroke="#fff" stroke-width="2"/>
+      <polygon points="180,155 196,163 180,171" fill="#fff" opacity="0.9"/>
+
+      <!-- Stars around core -->
+      <text x="155" y="215" font-size="9" fill="rgba(255,220,80,0.7)">✦</text>
+      <text x="198" y="212" font-size="9" fill="rgba(255,220,80,0.7)">✦</text>
+      <text x="168" y="230" font-size="8" fill="rgba(255,220,80,0.5)">✦</text>
+
+      <!-- Labels -->
+      <text x="180" y="62" text-anchor="middle" font-family="DM Sans,sans-serif" font-size="16" font-weight="700" fill="#fff" letter-spacing="1">MENTALIDADE</text>
+      <text x="180" y="100" text-anchor="middle" font-family="DM Sans,sans-serif" font-size="14" font-weight="600" fill="#fff" opacity="0.9" letter-spacing="0.5">MAPA POLÍTICO</text>
+      <text x="180" y="138" text-anchor="middle" font-family="DM Sans,sans-serif" font-size="13" font-weight="600" fill="#fff" opacity="0.85" letter-spacing="0.5">POSICIONAMENTO</text>
+      <text x="180" y="196" text-anchor="middle" font-family="DM Sans,sans-serif" font-size="12" font-weight="700" fill="#fff" letter-spacing="0.5">CAPITAL</text>
+      <text x="180" y="212" text-anchor="middle" font-family="DM Sans,sans-serif" font-size="12" font-weight="700" fill="#fff" letter-spacing="0.5">POLÍTICO</text>
+
+      <!-- Curved arrow left: Comunicação Executiva -->
+      <path d="M 32 170 Q 20 220 44 268" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="2" stroke-dasharray="4,3"/>
+      <polygon points="44,268 36,255 52,256" fill="rgba(255,255,255,0.6)"/>
+      <text x="8" y="195" font-family="DM Sans,sans-serif" font-size="10" fill="rgba(255,255,255,0.7)" transform="rotate(-70,8,195)" text-anchor="middle">Comunicação Executiva</text>
+
+      <!-- Curved arrow right: Construção de Narrativa -->
+      <path d="M 326 170 Q 340 220 316 268" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="2" stroke-dasharray="4,3"/>
+      <polygon points="316,268 310,255 326,256" fill="rgba(255,255,255,0.6)"/>
+      <text x="352" y="195" font-family="DM Sans,sans-serif" font-size="10" fill="rgba(255,255,255,0.7)" transform="rotate(70,352,195)" text-anchor="middle">Construção de Narrativa</text>
+
+      <!-- Title above -->
+      <text x="180" y="26" text-anchor="middle" font-family="DM Sans,sans-serif" font-size="13" font-weight="600" fill="rgba(196,131,58,0.9)" letter-spacing="2">A CEBOLA ESTRATÉGICA</text>
+      <line x1="60" y1="30" x2="110" y2="30" stroke="rgba(196,131,58,0.5)" stroke-width="1"/>
+      <line x1="250" y1="30" x2="300" y2="30" stroke="rgba(196,131,58,0.5)" stroke-width="1"/>
+    </svg>
+
+    <div class="cebola-legend-col" data-step="3">
+      <div class="legend-row"><div class="legend-dot" style="background:#E8B84B"></div>Capital político — o núcleo</div>
+      <div class="legend-row"><div class="legend-dot" style="background:#C4833A"></div>Posicionamento estratégico</div>
+      <div class="legend-row"><div class="legend-dot" style="background:#3a7a3a"></div>Mapa político</div>
+      <div class="legend-row"><div class="legend-dot" style="background:#2A5298"></div>Mentalidade estratégica</div>
+      <div class="legend-row" style="margin-top:8px;"><div class="legend-dot" style="background:rgba(255,255,255,0.4)"></div>Comunicação executiva</div>
+      <div class="legend-row"><div class="legend-dot" style="background:rgba(255,255,255,0.4)"></div>Construção de narrativa</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SLIDE 5 — MÓDULOS ══ -->
+<div class="slide" data-slide="5">
+  <div data-step="0">
+    <div class="slide-tag">05 — Os módulos</div>
+    <div class="divider"></div>
+    <h2>A trilha de aprendizagem</h2>
+  </div>
+
+  <div class="modules-layout" data-step="1">
+    <!-- left: card list -->
+    <div class="module-card-list" id="mod-card-list">
+      <!-- cards injected by JS -->
+    </div>
+    <!-- right: description panel -->
+    <div class="module-desc-panel" id="mod-desc">
+      <div class="desc-tag" id="mod-desc-tag">Módulo 1</div>
+      <div class="desc-title" id="mod-desc-title"></div>
+      <div class="desc-body"  id="mod-desc-body"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SLIDE 6 — AS AULAS ══ -->
+<div class="slide" data-slide="6">
+  <div data-step="0">
+    <div class="slide-tag">06 — As aulas</div>
+    <div class="divider"></div>
+    <h2>Como funcionam as aulas</h2>
+  </div>
+  <p class="lead" data-step="1">As aulas são curtas e diretas — cada uma aborda um conceito específico que você pode aplicar imediatamente.</p>
+  <ul class="item-list" style="margin-top:32px; max-width:680px;">
+    <li data-step="2"><span class="dot"></span>Um conceito principal por aula</li>
+    <li data-step="3"><span class="dot"></span>Framework visual para fixar o modelo</li>
+    <li data-step="4"><span class="dot"></span>Exemplos práticos do ambiente corporativo</li>
+    <li data-step="5"><span class="dot"></span>Aplicação direta na sua realidade</li>
+  </ul>
+</div>
+
+<!-- ══ SLIDE 7 — AS TAREFAS ══ -->
+<div class="slide" data-slide="7">
+  <div data-step="0">
+    <div class="slide-tag">07 — As tarefas</div>
+    <div class="divider"></div>
+    <h2>Como funcionam as tarefas</h2>
+  </div>
+  <p class="lead" data-step="1">Ao final de cada módulo você terá tarefas práticas. É nelas que o método se aplica à sua realidade profissional.</p>
+  <div class="highlight-box" data-step="2">
+    <h2>A execução é o que transforma conhecimento em resultado.</h2>
+    <p class="lead">As tarefas são entregues diretamente para o mentor — isso garante que você avance com clareza e direção.</p>
+  </div>
+</div>
+
+<!-- ══ SLIDE 8 — RECOMENDAÇÕES ══ -->
+<div class="slide" data-slide="8">
+  <div data-step="0">
+    <div class="slide-tag">08 — Recomendações</div>
+    <div class="divider"></div>
+    <h2>Como aproveitar<br>melhor a mentoria</h2>
+  </div>
+  <div data-step="1">
+    <div class="rec-card">
+      <div class="rec-num">01</div>
+      <div class="rec-title">Assista com atenção</div>
+      <div class="rec-desc">Cada aula carrega um modelo mental que acumula com o anterior.</div>
+    </div>
+  </div>
+  <div data-step="2">
+    <div class="rec-card">
+      <div class="rec-num">02</div>
+      <div class="rec-title">Execute as tarefas</div>
+      <div class="rec-desc">Sem execução, não há transformação de carreira.</div>
+    </div>
+  </div>
+  <div data-step="3">
+    <div class="rec-card">
+      <div class="rec-num">03</div>
+      <div class="rec-title">Reflita sobre sua realidade</div>
+      <div class="rec-desc">Conecte cada conceito ao seu contexto organizacional concreto.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SLIDE 9 — INÍCIO ══ -->
+<div class="slide slide-final" data-slide="9">
+  <div data-step="0">
+    <div class="slide-tag">09 — Começando</div>
+    <div class="divider"></div>
+    <span class="final-badge">Módulo 1</span>
+    <h2>Comece agora pelo<br>Módulo 1</h2>
+  </div>
+  <p class="accent-line" data-step="1">Mentalidade estratégica</p>
+  <p class="lead" data-step="2" style="margin-top:20px; max-width:560px;">A base de tudo começa aqui — antes de qualquer estratégia, posicionamento ou ferramenta, existe um modelo mental que precisa ser construído.</p>
+</div>
+
+
+<script>
+/* ═══════════════════════════════════════
+   DATA
+═══════════════════════════════════════ */
+const MODULE_DATA = [
+  {
+    title: "Mentalidade estratégica",
+    desc:  "A base do método. Desenvolvemos os 7 princípios que fundamentam a atuação de um líder estratégico — de autorresponsabilidade à visão sistêmica. Sem essa camada, as demais ferramentas não funcionam."
+  },
+  {
+    title: "Capital político e posicionamento",
+    desc:  "Entendemos como funciona o jogo de poder nas organizações. Mapeamos stakeholders, construímos capital político — a combinação de relacionamento, percepção e influência — e aprendemos a negociar com o método T-PIAF."
+  },
+  {
+    title: "Comunicação executiva",
+    desc:  "Aprendemos a responder as 4 perguntas invisíveis que todo decisor faz antes de ouvir qualquer proposta. A diferença entre comunicação operacional e executiva é o que separa quem é percebido como líder de quem é percebido como executor."
+  },
+  {
+    title: "Leitura de cenário político",
+    desc:  "Desenvolvemos a capacidade de ler sistemas, atores e timing — a tríade do cenário político. Quem consegue antecipar movimentos organizacionais age de forma estratégica, não reativa."
+  },
+  {
+    title: "Construção de narrativa",
+    desc:  "Construímos a estrutura narrativa executiva: contexto → ação → impacto → significado → próximos passos. A narrativa é o que transforma resultados em percepção de liderança dentro da organização."
+  },
+  {
+    title: "Criando oportunidades de maneira sistêmica",
+    desc:  "Integramos todas as camadas do método em um loop sistêmico de geração de oportunidades. O objetivo é sair da reatividade e construir um sistema pessoal de crescimento contínuo dentro da organização."
+  }
+];
+
+/* ═══════════════════════════════════════
+   BUILD MODULE CARDS
+   Cards are rendered but only shown when their data-step is revealed.
+   Each card gets its own data-step wrapper handled by the reveal engine.
+   But here cards are inside [data-step="1"] on the whole modules-layout,
+   so we manage card reveal independently via modCardsRevealed counter.
+═══════════════════════════════════════ */
+let modCardsRevealed = 0;   // how many cards are currently visible
+let activeModIdx     = -1;  // which card is currently "active"
+
+function buildModuleCards() {
+  const list = document.getElementById('mod-card-list');
+  list.innerHTML = '';
+  MODULE_DATA.forEach((m, i) => {
+    const card = document.createElement('div');
+    card.className = 'mod-card';
+    card.id = `mod-card-${i}`;
+    card.style.display = 'none'; // hidden until revealed
+    card.innerHTML = `
+      <span class="mod-num">${i + 1}</span>
+      <span class="mod-title">${m.title}</span>
+    `;
+    card.addEventListener('click', () => activateModule(i));
+    list.appendChild(card);
+  });
+}
+
+function revealNextCard() {
+  if (modCardsRevealed >= MODULE_DATA.length) return false;
+  const card = document.getElementById(`mod-card-${modCardsRevealed}`);
+  card.style.display = 'flex';
+  // animate in
+  card.style.opacity = '0';
+  card.style.transform = 'translateY(14px)';
+  card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    card.style.opacity = '1';
+    card.style.transform = 'translateY(0)';
+  }));
+
+  // auto-activate the newly revealed card
+  activateModule(modCardsRevealed);
+  modCardsRevealed++;
+  return true;
+}
+
+function activateModule(idx) {
+  // Update card states
+  MODULE_DATA.forEach((_, i) => {
+    const c = document.getElementById(`mod-card-${i}`);
+    if (!c || c.style.display === 'none') return;
+    c.classList.remove('active', 'past');
+    if (i < idx)      c.classList.add('past');
+    else if (i === idx) c.classList.add('active');
+  });
+  activeModIdx = idx;
+
+  // Update description panel
+  const panel = document.getElementById('mod-desc');
+  const m = MODULE_DATA[idx];
+  document.getElementById('mod-desc-tag').textContent   = `Módulo ${idx + 1}`;
+  document.getElementById('mod-desc-title').textContent = m.title;
+  document.getElementById('mod-desc-body').textContent  = m.desc;
+  panel.classList.add('visible');
+}
+
+buildModuleCards();
+
+/* ═══════════════════════════════════════
+   REVEAL ENGINE
+═══════════════════════════════════════ */
+const slides      = Array.from(document.querySelectorAll('[data-slide]'));
+const totalSlides = slides.length;
+const bar         = document.getElementById('progress');
+const counter     = document.getElementById('slide-counter');
+const hint        = document.getElementById('click-hint');
+
+// Per slide: collect non-zero steps sorted
+const slideStepEls = slides.map(slide =>
+  Array.from(slide.querySelectorAll('[data-step]'))
+    .filter(el => el.dataset.step !== '0')
+    .sort((a, b) => +a.dataset.step - +b.dataset.step)
+);
+
+function getActiveIdx() {
+  let best = 0, bestScore = -Infinity;
+  slides.forEach((s, i) => {
+    const r = s.getBoundingClientRect();
+    const vis = Math.min(r.bottom, window.innerHeight) - Math.max(r.top, 0);
+    if (vis > bestScore) { bestScore = vis; best = i; }
+  });
+  return best;
+}
+
+function updateHUD(idx) {
+  counter.textContent = `${String(idx + 1).padStart(2,'0')} / ${String(totalSlides).padStart(2,'0')}`;
+  bar.style.width = (idx / (totalSlides - 1) * 100) + '%';
+  hint.style.opacity = idx === totalSlides - 1 ? '0' : '1';
+}
+
+// Returns true if something was revealed
+function revealNextInSlide(idx) {
+  const slideEl = slides[idx];
+  const slideNum = +slideEl.dataset.slide;
+
+  // Slide 5 (index 5) — modules special handling
+  if (slideNum === 5) {
+    // First click reveals the layout wrapper (data-step="1")
+    const wrapper = slideEl.querySelector('[data-step="1"]');
+    if (!wrapper.classList.contains('revealed')) {
+      wrapper.classList.add('revealed');
+      return true;
+    }
+    // Subsequent clicks reveal one card at a time
+    return revealNextCard();
+  }
+
+  // Normal slides
+  const next = slideStepEls[idx].find(el => !el.classList.contains('revealed'));
+  if (next) { next.classList.add('revealed'); return true; }
+  return false;
+}
+
+// Navigate: advance or go to next/prev slide
+function navigate(dir) {
+  const idx = getActiveIdx();
+  if (dir === 1) {
+    const consumed = revealNextInSlide(idx);
+    if (!consumed && idx < totalSlides - 1) {
+      slides[idx + 1].scrollIntoView({ behavior: 'smooth' });
+      setTimeout(() => updateHUD(getActiveIdx()), 700);
+    }
+  } else {
+    // going back — scroll to previous slide
+    if (idx > 0) {
+      slides[idx - 1].scrollIntoView({ behavior: 'smooth' });
+      setTimeout(() => updateHUD(getActiveIdx()), 700);
+    }
+  }
+  updateHUD(getActiveIdx());
+}
+
+// Click anywhere on body (not on module cards) → advance
+document.addEventListener('click', e => {
+  if (e.target.closest('.mod-card'))  return; // handled by module logic
+  if (e.target.closest('.nav-btn'))   return; // handled by navigate()
+  navigate(1);
+});
+
+window.addEventListener('scroll', () => updateHUD(getActiveIdx()), { passive: true });
+
+updateHUD(0);
+</script>
+</body>
+</html>

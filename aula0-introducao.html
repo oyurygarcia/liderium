@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- saved from url=(0059)file:///Users/yurygarcia/Downloads/aula0-introducao_10.html -->
+<!-- saved from url=(0059)file:///Users/yurygarcia/Downloads/aula0-introducao_12.html -->
 <html lang="pt-br"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -649,6 +649,45 @@ function revealNextInSlide(idx) {
   return false;
 }
 
+/* Undo last reveal — for slide 5 (modules), undo last card */
+function undoLastReveal(idx) {
+  const slideEl = slides[idx];
+  if (+slideEl.dataset.slide === 5) {
+    if (modCardsRevealed > 0) {
+      modCardsRevealed--;
+      const card = document.getElementById(`mod-card-${modCardsRevealed}`);
+      if (card) {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(14px)';
+        setTimeout(() => { card.style.display = 'none'; }, 480);
+        card.classList.remove('active','past');
+      }
+      // activate previous card if any
+      if (modCardsRevealed > 0) {
+        activateModule(modCardsRevealed - 1);
+      } else {
+        document.getElementById('mod-desc').classList.remove('visible');
+        const wrapper = slideEl.querySelector('[data-step="1"]');
+        if (wrapper) wrapper.classList.remove('revealed');
+      }
+      return true;
+    }
+    // hide the wrapper itself
+    const wrapper = slideEl.querySelector('[data-step="1"]');
+    if (wrapper && wrapper.classList.contains('revealed')) {
+      wrapper.classList.remove('revealed');
+      return true;
+    }
+    return false;
+  }
+  const revealed = slideStepEls[idx].filter(el => el.classList.contains('revealed'));
+  if (revealed.length > 0) {
+    revealed[revealed.length - 1].classList.remove('revealed');
+    return true;
+  }
+  return false;
+}
+
 function navigate(dir) {
   const idx = getActiveIdx();
   if (dir === 1) {
@@ -658,7 +697,9 @@ function navigate(dir) {
       setTimeout(() => updateHUD(getActiveIdx()), 700);
     }
   } else {
-    if (idx > 0) {
+    /* Back = undo last reveal; only go to previous slide if nothing left to undo */
+    const undone = undoLastReveal(idx);
+    if (!undone && idx > 0) {
       slides[idx - 1].scrollIntoView({ behavior: 'smooth' });
       setTimeout(() => updateHUD(getActiveIdx()), 700);
     }

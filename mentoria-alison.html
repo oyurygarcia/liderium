@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mentoria Alison — Construção da Liderança Estratégica</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400&family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #0d1f35;
+    --navy-mid: #122a47;
+    --blue: #1a6fbf;
+    --blue-light: #4ab3e8;
+    --white: #ffffff;
+    --off-white: #f0f6fc;
+    --gray: #8dafc8;
+    --gold: #f0c040;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    width: 100%; height: 100%;
+    overflow: hidden;
+    background: var(--navy);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    color: var(--white);
+    cursor: default;
+    user-select: none;
+  }
+
+  .deck { width: 100vw; height: 100vh; position: relative; }
+
+  .slide {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column;
+    justify-content: center; align-items: center;
+    padding: 5vw;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.55s cubic-bezier(.4,0,.2,1), transform 0.55s cubic-bezier(.4,0,.2,1);
+    transform: translateY(28px);
+    will-change: opacity, transform;
+  }
+  .slide.active { opacity: 1; pointer-events: auto; transform: translateY(0); }
+  .slide.exit-fwd  { opacity: 0; transform: translateY(-22px); transition: opacity .38s ease, transform .38s ease; pointer-events: none; }
+  .slide.exit-back { opacity: 0; transform: translateY(22px);  transition: opacity .38s ease, transform .38s ease; pointer-events: none; }
+
+  /* backgrounds */
+  .bg-dark   { background: var(--navy); }
+  .bg-mid    { background: var(--navy-mid); }
+  .bg-blue   { background: linear-gradient(135deg, #0d1f35 0%, #1a4a7a 100%); }
+  .bg-accent { background: linear-gradient(135deg, #1a6fbf 0%, #4ab3e8 100%); }
+
+  .slide::before { content:''; position:absolute; border-radius:50%; pointer-events:none; width:380px; height:380px; top:-100px; left:-100px; background:radial-gradient(circle, rgba(74,179,232,.13) 0%, transparent 70%); }
+  .slide::after  { content:''; position:absolute; border-radius:50%; pointer-events:none; width:280px; height:280px; bottom:-70px; right:-70px; background:radial-gradient(circle, rgba(74,179,232,.09) 0%, transparent 70%); }
+  .bg-accent::before { background:radial-gradient(circle, rgba(255,255,255,.16) 0%, transparent 60%); }
+  .bg-accent::after  { background:radial-gradient(circle, rgba(255,255,255,.09) 0%, transparent 60%); }
+
+  /* typography */
+  h1,h2,h3 { font-family:'Outfit',sans-serif; line-height:1.1; }
+  h1 { font-size:clamp(2.2rem,5vw,4.5rem); font-weight:800; }
+  h2 { font-size:clamp(1.5rem,3vw,2.6rem); font-weight:700; }
+  h3 { font-family:'Plus Jakarta Sans',sans-serif; font-size:clamp(.95rem,1.6vw,1.2rem); font-weight:600; }
+  p,li { font-size:clamp(.86rem,1.3vw,1rem); line-height:1.7; font-weight:300; }
+  .lead { font-size:clamp(.92rem,1.5vw,1.15rem); font-weight:400; opacity:.85; }
+  .label { font-family:'Plus Jakarta Sans',sans-serif; font-size:.68rem; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--blue-light); margin-bottom:.45rem; }
+  .author { font-size:.85rem; font-weight:300; opacity:.52; letter-spacing:.1em; text-transform:uppercase; }
+
+  /* layout */
+  .center { text-align:center; }
+  .col    { display:flex; flex-direction:column; gap:1rem; }
+  .two-col   { display:grid; grid-template-columns:1fr 1fr; gap:2.8rem; width:100%; max-width:1000px; }
+  .three-col { display:grid; grid-template-columns:1fr 1fr 1fr; gap:1.4rem; width:100%; max-width:1100px; }
+
+  .divider { width:50px; height:3px; background:linear-gradient(90deg,var(--blue-light),transparent); border-radius:2px; margin:.55rem 0 .9rem; }
+  .center .divider { margin:.55rem auto .9rem; }
+
+  .pill { display:inline-block; background:rgba(74,179,232,.17); color:var(--blue-light); border:1px solid rgba(74,179,232,.36); border-radius:999px; padding:.28rem 1rem; font-size:.72rem; font-weight:600; letter-spacing:.08em; text-transform:uppercase; }
+
+  /* cards */
+  .card        { background:rgba(255,255,255,.07); border:1px solid rgba(74,179,232,.2); border-radius:13px; padding:1.4rem 1.6rem; }
+  .card-accent { background:rgba(74,179,232,.11); border:1px solid rgba(74,179,232,.3); border-radius:13px; padding:1.4rem 1.6rem; }
+
+  /* checklist */
+  .checklist { list-style:none; display:flex; flex-direction:column; gap:.55rem; }
+  .checklist li { display:flex; gap:.75rem; align-items:flex-start; font-size:.92rem; font-weight:300; }
+  .checklist li::before { content:'✦'; color:var(--blue-light); font-size:.62rem; margin-top:.35rem; flex-shrink:0; }
+
+  /* pillar card */
+  .pillar-card { background:rgba(255,255,255,.05); border:1px solid rgba(74,179,232,.13); border-top:3px solid var(--blue-light); border-radius:11px; padding:1.2rem 1.4rem; transition:transform .2s,border-color .2s; }
+  .pillar-card:hover { transform:translateY(-3px); border-color:rgba(74,179,232,.4); }
+  .pillar-num   { font-family:'Plus Jakarta Sans',sans-serif; font-size:.67rem; font-weight:700; color:var(--blue-light); letter-spacing:.1em; text-transform:uppercase; margin-bottom:.42rem; }
+  .pillar-title { font-family:'Outfit',sans-serif; font-size:.97rem; font-weight:700; margin-bottom:.35rem; }
+  .pillar-sub   { font-size:.76rem; color:var(--blue-light); font-weight:400; margin-bottom:.42rem; opacity:.88; }
+  .pillar-desc  { font-size:.8rem; font-weight:300; line-height:1.58; opacity:.78; }
+
+  /* session item */
+  .session-item { display:flex; gap:.9rem; align-items:flex-start; padding:.8rem 1rem; background:rgba(255,255,255,.05); border-radius:9px; }
+  .session-icon { width:32px; height:32px; border-radius:8px; background:rgba(74,179,232,.2); display:flex; align-items:center; justify-content:center; font-size:.9rem; flex-shrink:0; }
+  .session-text h3 { font-size:.88rem; font-weight:600; margin-bottom:.14rem; }
+  .session-text p  { font-size:.78rem; font-weight:300; opacity:.72; line-height:1.5; }
+
+  /* toggle button */
+  .toggle-btn { display:inline-flex; align-items:center; gap:.45rem; background:rgba(74,179,232,.16); border:1px solid rgba(74,179,232,.38); border-radius:999px; padding:.4rem 1.1rem; color:var(--blue-light); font-family:'Plus Jakarta Sans',sans-serif; font-size:.75rem; font-weight:600; letter-spacing:.06em; text-transform:uppercase; cursor:pointer; transition:background .2s; margin-top:.35rem; }
+  .toggle-btn:hover { background:rgba(74,179,232,.3); }
+  .toggle-btn.on { background:rgba(74,179,232,.32); border-color:var(--blue-light); }
+  .toggle-indicator { width:7px; height:7px; border-radius:50%; background:var(--blue-light); transition:box-shadow .2s; }
+  .toggle-btn.on .toggle-indicator { box-shadow:0 0 6px rgba(74,179,232,.9); }
+
+  /* pillars overlay */
+  .pillars-overlay { position:absolute; inset:0; z-index:10; background:rgba(13,31,53,.96); backdrop-filter:blur(4px); display:flex; flex-direction:column; justify-content:center; align-items:center; padding:4vw; opacity:0; pointer-events:none; transition:opacity .38s ease; }
+  .pillars-overlay.visible { opacity:1; pointer-events:auto; }
+
+  /* phase */
+  .phase { display:flex; gap:1.1rem; align-items:flex-start; padding:.85rem 1.1rem; background:rgba(255,255,255,.05); border-radius:9px; border-left:3px solid var(--blue-light); }
+  .phase-num { font-family:'Outfit',sans-serif; font-size:1.25rem; font-weight:800; color:var(--blue-light); min-width:1.8rem; line-height:1; }
+  .phase-text h3 { font-size:.88rem; font-weight:600; margin-bottom:.14rem; }
+  .phase-text p  { font-size:.78rem; font-weight:300; opacity:.75; line-height:1.45; }
+
+  /* compare table */
+  .compare-table { width:100%; max-width:960px; border-collapse:collapse; }
+  .compare-table th { background:rgba(74,179,232,.17); color:var(--blue-light); font-family:'Plus Jakarta Sans',sans-serif; font-size:.72rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; padding:.8rem 1rem; text-align:left; }
+  .compare-table th:first-child { background:rgba(255,255,255,.05); color:var(--gray); }
+  .compare-table td { padding:.74rem 1rem; font-size:.84rem; font-weight:300; border-bottom:1px solid rgba(255,255,255,.06); vertical-align:top; line-height:1.5; }
+  .compare-table td:first-child { font-family:'Plus Jakarta Sans',sans-serif; font-size:.7rem; font-weight:700; letter-spacing:.07em; text-transform:uppercase; color:var(--gray); }
+  .compare-table tr:last-child td { border-bottom:none; }
+  .compare-table .neg { color:rgba(255,255,255,.5); }
+  .compare-table .pos { color:#7adcff; }
+
+  /* price */
+  .price-row { display:flex; justify-content:space-between; align-items:center; padding:.8rem 1.1rem; border-bottom:1px solid rgba(255,255,255,.07); }
+  .price-row:last-child { border-bottom:none; }
+  .price-label { font-size:.88rem; font-weight:300; max-width:66%; line-height:1.4; }
+  .price-val   { font-family:'Outfit',sans-serif; font-weight:700; color:var(--blue-light); white-space:nowrap; font-size:.98rem; }
+  .price-total .price-label { font-weight:600; font-size:.96rem; }
+  .price-total .price-val   { font-size:1.18rem; color:var(--gold); }
+
+  /* invest box */
+  .invest-box { border-radius:16px; padding:1.8rem 2rem; position:relative; overflow:hidden; }
+  .invest-box.main  { background:linear-gradient(135deg,rgba(74,179,232,.19),rgba(74,179,232,.06)); border:1px solid rgba(74,179,232,.4); }
+  .invest-box.promo { background:linear-gradient(135deg,rgba(240,192,64,.15),rgba(240,192,64,.04)); border:2px solid rgba(240,192,64,.45); }
+  .invest-box .badge { position:absolute; top:1rem; right:1rem; background:var(--gold); color:var(--navy); font-family:'Plus Jakarta Sans',sans-serif; font-size:.66rem; font-weight:800; letter-spacing:.09em; text-transform:uppercase; border-radius:999px; padding:.2rem .7rem; }
+  .big-price { font-family:'Outfit',sans-serif; font-size:clamp(1.9rem,4.2vw,3rem); font-weight:800; line-height:1; letter-spacing:-.01em; }
+  .big-price .currency { font-family:'Plus Jakarta Sans',sans-serif; font-size:.42em; font-weight:500; opacity:.68; vertical-align:top; margin-top:.3em; display:inline-block; margin-right:.1em; }
+  .installment { font-family:'Plus Jakarta Sans',sans-serif; font-size:.82rem; opacity:.62; margin-top:.35rem; }
+
+  /* testi */
+  .testi { background:rgba(255,255,255,.06); border:1px solid rgba(74,179,232,.17); border-radius:11px; padding:1.2rem 1.4rem; position:relative; }
+  .testi::before { content:'\201C'; font-size:2.8rem; line-height:1; color:rgba(74,179,232,.26); position:absolute; top:.35rem; left:.85rem; font-family:Georgia,serif; }
+  .testi-text   { font-size:.8rem; line-height:1.65; font-weight:300; opacity:.86; padding-top:1.2rem; }
+  .testi-author { font-family:'Outfit',sans-serif; font-size:.73rem; font-weight:700; color:var(--blue-light); margin-top:.65rem; }
+  .testi-role   { font-size:.68rem; opacity:.52; }
+
+  /* big quote */
+  .big-quote { font-family:'Outfit',sans-serif; font-size:clamp(1.3rem,2.8vw,2.3rem); font-weight:700; line-height:1.35; max-width:760px; text-align:center; }
+  .big-quote::before,.big-quote::after { content:''; display:block; width:46px; height:3px; background:rgba(13,31,53,.38); border-radius:2px; margin:.9rem auto; }
+
+  /* trajectory */
+  .traj-row { display:flex; gap:1.1rem; align-items:baseline; padding:.38rem 0; border-bottom:1px solid rgba(255,255,255,.05); }
+  .traj-row:last-child { border-bottom:none; }
+  .traj-year    { font-family:'Plus Jakarta Sans',sans-serif; font-size:.68rem; font-weight:700; color:var(--blue-light); min-width:46px; letter-spacing:.05em; }
+  .traj-role    { font-family:'Plus Jakarta Sans',sans-serif; font-size:.88rem; font-weight:400; }
+  .traj-company { opacity:.5; font-weight:300; }
+
+  /* fade-in items */
+  .fi { opacity:0 !important; transform:translateY(14px); transition:opacity .42s ease, transform .42s ease; }
+  .fi.shown { opacity:1 !important; transform:translateY(0); }
+  .fi.instant { transition:none !important; }
+  /* preserve display for specific element types */
+  tr.fi { display:table-row; }
+  div.fi.price-row { display:flex; }
+
+  /* nav */
+  #nav { position:fixed; bottom:1.6rem; left:50%; transform:translateX(-50%); display:flex; gap:.65rem; align-items:center; z-index:200; background:rgba(13,31,53,.88); backdrop-filter:blur(14px); border:1px solid rgba(74,179,232,.2); border-radius:999px; padding:.42rem 1rem; }
+  .nav-btn { width:30px; height:30px; border-radius:50%; background:rgba(74,179,232,.13); border:1px solid rgba(74,179,232,.26); color:var(--blue-light); cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:.9rem; transition:background .18s; font-family:inherit; }
+  .nav-btn:hover { background:rgba(74,179,232,.28); }
+  #counter { font-family:'Plus Jakarta Sans',sans-serif; font-size:.72rem; font-weight:700; color:var(--gray); letter-spacing:.08em; min-width:48px; text-align:center; }
+
+  /* dots */
+  #dots { position:fixed; right:1.6rem; top:50%; transform:translateY(-50%); display:flex; flex-direction:column; gap:.42rem; z-index:200; }
+  .dot { width:6px; height:6px; border-radius:50%; background:rgba(74,179,232,.22); cursor:pointer; transition:all .2s; }
+  .dot.active { background:var(--blue-light); transform:scale(1.5); }
+
+  .logo-mark { position:fixed; top:1.3rem; left:1.6rem; font-family:'Plus Jakarta Sans',sans-serif; font-size:.68rem; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:rgba(74,179,232,.36); z-index:200; }
+  #progress { position:fixed; top:0; left:0; height:2px; background:linear-gradient(90deg,var(--blue-light),#7adcff); transition:width .4s ease; z-index:300; border-radius:0 2px 2px 0; }
+
+  @media(max-width:768px) {
+    .two-col,.three-col { grid-template-columns:1fr; gap:.9rem; }
+    #dots { display:none; }
+  }
+</style>
+</head>
+<body>
+
+<div id="progress"></div>
+<div class="logo-mark"></div>
+<div id="dots"></div>
+
+<div class="deck" id="deck">
+
+  <!-- ── SLIDE 01: CAPA ── -->
+  <div class="slide bg-blue center active" id="slide-0" data-steps="0">
+    <div class="col center" style="gap:1.5rem; max-width:660px; align-items:center;">
+      <h1 style="font-size:clamp(2.8rem,7.5vw,6rem); font-weight:800; line-height:1.04; letter-spacing:-.025em;">
+        Construção da<br><span style="color:var(--blue-light);">Liderança Estratégica</span>
+      </h1>
+      <div class="divider" style="margin:0 auto;"></div>
+      <p class="lead" style="max-width:420px; opacity:.78;">Programa de Mentoria Individual</p>
+      <p class="author">por Yury Garcia</p>
+    </div>
+  </div>
+
+  <!-- ── SLIDE 02: CONTEXTO DA JULIANA ── -->
+  <div class="slide bg-dark" id="slide-1" data-steps="12">
+    <div class="two-col">
+      <div class="col">
+        <div class="fi label">Contexto do Alison</div>
+        <h2 class="fi">Você está <span style="color:var(--blue-light);">aqui.</span></h2>
+        <div class="fi divider"></div>
+        <ul class="checklist">
+          <li class="fi">Quase 7 anos de Uber</li>
+          <li class="fi">Construção sólida de carreira</li>
+          <li class="fi">Profunda expertise no ambiente de segurança</li>
+          <li class="fi">Rotina intensa</li>
+          <li class="fi">Trabalho solitário, intenso e muitas vezes operacional</li>
+        </ul>
+      </div>
+      <div class="col" style="gap:.8rem;">
+        <div class="fi label">Mistura de sentimentos frequente</div>
+        <div class="fi card-accent">
+          <p style="font-size:.88rem; line-height:1.65; font-weight:300;">Sente às vezes que tem <strong>menos exposição do que poderia</strong></p>
+        </div>
+        <div class="fi card-accent">
+          <p style="font-size:.88rem; line-height:1.65; font-weight:300;">Entende que seu trabalho é importante mas que às vezes pode ser <strong>muito operacional</strong></p>
+        </div>
+        <div class="fi card-accent">
+          <p style="font-size:.88rem; line-height:1.65; font-weight:300;">Quer ser visto como alguém <strong>estratégico</strong> mas ainda não sabe como aplicar isso no dia a dia</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SLIDE 03: DORES ── -->
+  <div class="slide bg-mid" id="slide-2" data-steps="6" style="padding:3vw 5vw;">
+    <div class="col" style="width:100%; max-width:820px;">
+      <h2 class="fi">Dores do <span style="color:var(--blue-light);">Alison</span></h2>
+      <div class="fi divider"></div>
+      <ul class="checklist" style="gap:1rem;">
+        <li class="fi" style="font-size:1rem; font-weight:300;">Leitura de cenário: como posso ler melhor o ambiente político e navegar de maneira mais assertiva?</li>
+        <li class="fi" style="font-size:1rem; font-weight:300;">Como me posicionar a fim de naturalmente ser visto e reconhecido como alguém mais estratégico?</li>
+        <li class="fi" style="font-size:1rem; font-weight:300;">Construção de uma imagem forte e intencional alinhado com o tipo de executivo que quer ser reconhecido</li>
+        <li class="fi" style="font-size:1rem; font-weight:300;">Receber autoridade, credibilidade e facilidade a partir de uma atuação estratégica</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ── SLIDE 04: TRANSFORMAÇÃO ── -->
+  <div class="slide bg-accent center" id="slide-3" data-steps="0">
+    <div class="col center" style="gap:1.8rem; max-width:700px; align-items:center;">
+      <div class="label" style="color:rgba(13,31,53,.58);">A Transformação</div>
+      <div class="big-quote" style="color:var(--navy);">
+        "Sair da liderança operacional e ser reconhecido como uma líder estratégico"
+      </div>
+      <p class="lead" style="color:rgba(13,31,53,.7); max-width:490px;">
+        Esse é o objetivo central do programa — não apenas melhorar o que você já faz, mas mudar o jogo.
+      </p>
+    </div>
+  </div>
+
+  <!-- ── SLIDE 05: COMPARATIVO (exato do PDF) ── -->
+  <div class="slide bg-dark" id="slide-4" data-steps="5" style="padding:3vw 5vw;">
+    <div class="col" style="width:100%; max-width:1020px;">
+      <div style="display:grid; grid-template-columns:160px 1fr 1fr; border-radius:12px 12px 0 0; overflow:hidden; border:1px solid rgba(74,179,232,.18); border-bottom:none;">
+        <div style="background:rgba(255,255,255,.04); padding:.75rem 1rem;"></div>
+        <div style="background:rgba(255,255,255,.08); padding:.78rem 1.2rem; border-left:1px solid rgba(74,179,232,.15); text-align:center;">
+          <span style="font-family:'Plus Jakarta Sans',sans-serif; font-size:.82rem; font-weight:400; color:var(--gray);">Líder operacional</span>
+        </div>
+        <div style="background:rgba(74,179,232,.10); padding:.78rem 1.2rem; border-left:1px solid rgba(74,179,232,.15); text-align:center;">
+          <span style="font-family:'Plus Jakarta Sans',sans-serif; font-size:.82rem; font-weight:400; color:var(--blue-light);">Líder estratégico</span>
+        </div>
+      </div>
+
+      <div class="fi" style="display:grid; grid-template-columns:160px 1fr 1fr; border:1px solid rgba(74,179,232,.18); border-top:none; border-bottom:none;">
+        <div style="background:rgba(255,255,255,.04); padding:.9rem 1rem; display:flex; align-items:center; justify-content:center;">
+          <span style="font-family:'Plus Jakarta Sans',sans-serif; font-size:.78rem; font-weight:400; color:var(--gray); text-align:center;">Stakeholders</span>
+        </div>
+        <div style="padding:.9rem 1.2rem; border-left:1px solid rgba(74,179,232,.12); font-size:.87rem; font-weight:300; line-height:1.6; color:rgba(255,255,255,.55);">
+          Tem boa interação com stakeholders, contribui com o que é solicitado. É solícito.
+        </div>
+        <div style="padding:.9rem 1.2rem; border-left:1px solid rgba(74,179,232,.18); font-size:.87rem; font-weight:300; line-height:1.6; color:#7adcff;">
+          Gera insights e constrói alianças. É um pilar de articulação e toma a frente de dinâmicas entre áreas. É solicitado.
+        </div>
+      </div>
+
+      <div class="fi" style="display:grid; grid-template-columns:160px 1fr 1fr; border:1px solid rgba(74,179,232,.18); border-top:1px solid rgba(255,255,255,.07); border-bottom:none;">
+        <div style="background:rgba(255,255,255,.04); padding:.9rem 1rem; display:flex; align-items:center; justify-content:center;">
+          <span style="font-family:'Plus Jakarta Sans',sans-serif; font-size:.78rem; font-weight:400; color:var(--gray); text-align:center;">Processos</span>
+        </div>
+        <div style="padding:.9rem 1.2rem; border-left:1px solid rgba(74,179,232,.12); font-size:.87rem; font-weight:300; line-height:1.6; color:rgba(255,255,255,.55);">
+          Focado em desempenhar bem sua operação
+        </div>
+        <div style="padding:.9rem 1.2rem; border-left:1px solid rgba(74,179,232,.18); font-size:.87rem; font-weight:300; line-height:1.6; color:#7adcff;">
+          Focado em articular sua operação com demais áreas do negócio
+        </div>
+      </div>
+
+      <div class="fi" style="display:grid; grid-template-columns:160px 1fr 1fr; border:1px solid rgba(74,179,232,.18); border-top:1px solid rgba(255,255,255,.07); border-bottom:none;">
+        <div style="background:rgba(255,255,255,.04); padding:.9rem 1rem; display:flex; align-items:center; justify-content:center;">
+          <span style="font-family:'Plus Jakarta Sans',sans-serif; font-size:.78rem; font-weight:400; color:var(--gray); text-align:center;">Resultados</span>
+        </div>
+        <div style="padding:.9rem 1.2rem; border-left:1px solid rgba(74,179,232,.12); font-size:.87rem; font-weight:300; line-height:1.6; color:rgba(255,255,255,.55);">
+          Guardião dos KPIs da área
+        </div>
+        <div style="padding:.9rem 1.2rem; border-left:1px solid rgba(74,179,232,.18); font-size:.87rem; font-weight:300; line-height:1.6; color:#7adcff;">
+          Guardião dos OKRs da área
+        </div>
+      </div>
+
+      <div class="fi" style="display:grid; grid-template-columns:160px 1fr 1fr; border:1px solid rgba(74,179,232,.18); border-top:1px solid rgba(255,255,255,.07); border-bottom:none;">
+        <div style="background:rgba(255,255,255,.04); padding:.9rem 1rem; display:flex; align-items:center; justify-content:center;">
+          <span style="font-family:'Plus Jakarta Sans',sans-serif; font-size:.78rem; font-weight:400; color:var(--gray); text-align:center;">Posicionamento</span>
+        </div>
+        <div style="padding:.9rem 1.2rem; border-left:1px solid rgba(74,179,232,.12); font-size:.87rem; font-weight:300; line-height:1.6; color:rgba(255,255,255,.55);">
+          É consultada para inputs de projetos e participa de reuniões. Segue a narrativa estabelecida
+        </div>
+        <div style="padding:.9rem 1.2rem; border-left:1px solid rgba(74,179,232,.18); font-size:.87rem; font-weight:300; line-height:1.6; color:#7adcff;">
+          Gera inputs para novos projetos e lidera reuniões. Coordena a narrativa
+        </div>
+      </div>
+
+      <div class="fi" style="display:grid; grid-template-columns:160px 1fr 1fr; border:1px solid rgba(74,179,232,.18); border-top:1px solid rgba(255,255,255,.07); border-radius:0 0 12px 12px; overflow:hidden;">
+        <div style="background:rgba(255,255,255,.04); padding:.9rem 1rem; display:flex; align-items:center; justify-content:center;">
+          <span style="font-family:'Plus Jakarta Sans',sans-serif; font-size:.78rem; font-weight:400; color:var(--gray); text-align:center;">Estratégia</span>
+        </div>
+        <div style="padding:.9rem 1.2rem; border-left:1px solid rgba(74,179,232,.12); font-size:.87rem; font-weight:300; line-height:1.6; color:rgba(255,255,255,.55);">
+          Sobre a estratégia do negócio: é informado e por vezes consultado
+        </div>
+        <div style="padding:.9rem 1.2rem; border-left:1px solid rgba(74,179,232,.18); font-size:.87rem; font-weight:300; line-height:1.6; color:#7adcff;">
+          Sobre a estratégia do negócio: é parte inerente do processo
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="slide bg-mid" id="slide-5" data-steps="5" style="padding:2.5vw 4vw;">
+    <div class="col" style="width:100%; max-width:1160px;">
+      <div class="label">O Programa</div>
+      <h2>Pilares do Programa de Mentoria</h2>
+      <div class="divider"></div>
+      <div style="display:grid; grid-template-columns:repeat(5,1fr); gap:.9rem; margin-top:.3rem;">
+        <div class="fi pillar-card">
+          <div class="pillar-num">Mentalidade</div>
+          <div class="pillar-sub">Como pensa um líder estratégico</div>
+          <div class="pillar-desc">Calibrar a mentalidade para ver o negócio e os problemas a partir de uma nova ótica</div>
+        </div>
+        <div class="fi pillar-card">
+          <div class="pillar-num">Posicionamento</div>
+          <div class="pillar-sub">Como age um líder estratégico</div>
+          <div class="pillar-desc">A maneira como você se posiciona nas mais diversas situações fortalece (ou enfraquece) você no ambiente de trabalho</div>
+        </div>
+        <div class="fi pillar-card">
+          <div class="pillar-num">Análise de Cenário Político</div>
+          <div class="pillar-sub">Como navega um líder estratégico</div>
+          <div class="pillar-desc">Aprender a fazer uma análise ampla de xadrez político te antecipa problemas, situações e dinâmicas. E com isso deixa o tabuleiro mais favorável para você</div>
+        </div>
+        <div class="fi pillar-card">
+          <div class="pillar-num">Construção de Narrativa</div>
+          <div class="pillar-sub">Como contar o que precisa ser dito</div>
+          <div class="pillar-desc">Todas as empresas e áreas passam por altos e baixos em ciclos. Aprender a construir a narrativa é fortalecer sua imagem mesmo (e especialmente) em momentos de baixa</div>
+        </div>
+        <div class="fi pillar-card">
+          <div class="pillar-num">Criando Oportunidades de Maneira Sistêmica</div>
+          <div class="pillar-sub">Como avalia o contexto e cria oportunidades o tempo todo</div>
+          <div class="pillar-desc">Aqui consolidamos todo o método para você enxergar, agir e criar oportunidades de maneira sistêmica no seu ambiente de trabalho, alavancando resultado e percepção da sua imagem de leve, natural e sem sobrecarga</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SLIDE 07: COMO FUNCIONA ── -->
+  <div class="slide bg-dark" id="slide-6" data-steps="5" style="position:relative;">
+    <!-- Pillars overlay -->
+    <div class="pillars-overlay" id="pillarsOverlay">
+      <div class="label" style="margin-bottom:.7rem;">Caixa de Ferramentas — Pilares do Método</div>
+      <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:.9rem; width:100%; max-width:820px;">
+        <div class="pillar-card"><div class="pillar-num">Mentalidade</div><div class="pillar-sub">Como pensa um líder estratégico</div></div>
+        <div class="pillar-card"><div class="pillar-num">Posicionamento</div><div class="pillar-sub">Como age um líder estratégico</div></div>
+        <div class="pillar-card"><div class="pillar-num">Análise de Cenário Político</div><div class="pillar-sub">Como navega um líder estratégico</div></div>
+        <div class="pillar-card"><div class="pillar-num">Construção de Narrativa</div><div class="pillar-sub">Como contar o que precisa ser dito</div></div>
+        <div class="pillar-card"><div class="pillar-num">Criando Oportunidades de Maneira Sistêmica</div><div class="pillar-sub">Como avalia o contexto e cria oportunidades</div></div>
+      </div>
+      <button class="toggle-btn on" style="margin-top:1.2rem;" onclick="togglePillars(event)">
+        <span class="toggle-indicator"></span> Fechar Caixa de Ferramentas
+      </button>
+    </div>
+
+    <div class="two-col">
+      <div class="col">
+        <div class="label">Formato</div>
+        <h2>Como funciona o seu<br><span style="color:var(--blue-light);">Programa de Mentoria</span></h2>
+        <div class="divider"></div>
+        <p style="font-size:.84rem; font-weight:500; opacity:.65; margin-bottom:.25rem;">Sessões quinzenais por 04 meses</p>
+        <div class="fi session-item">
+          <div class="session-icon">🌡</div>
+          <div class="session-text">
+            <h3>Termômetro</h3>
+            <p>O que rolou na última quinzena? Momento para trocarmos de maneira ampla referente aos desafios do dia a dia</p>
+          </div>
+        </div>
+        <div class="fi session-item" style="flex-direction:column; align-items:flex-start; gap:.5rem;">
+          <div style="display:flex; gap:.9rem; align-items:flex-start; width:100%;">
+            <div class="session-icon">🧰</div>
+            <div class="session-text">
+              <h3>Caixa de Ferramentas</h3>
+              <p>Os pilares em estrutura de material</p>
+            </div>
+          </div>
+          <button class="toggle-btn" id="toolboxBtn" onclick="togglePillars(event)">
+            <span class="toggle-indicator"></span> Ver pilares do método
+          </button>
+        </div>
+        <div class="fi session-item">
+          <div class="session-icon">✏️</div>
+          <div class="session-text">
+            <h3>Tarefa</h3>
+            <p>Atividades práticas de implementação</p>
+          </div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="label">Acelerador</div>
+        <div class="fi card-accent" style="margin-bottom:.4rem;">
+          <h3 style="margin-bottom:.45rem;">💬 WhatsApp como acelerador</h3>
+          <ul style="list-style:none; display:flex; flex-direction:column; gap:.38rem; padding-left:.1rem;">
+            <li style="font-size:.82rem; font-weight:300; display:flex; gap:.55rem;"><span style="color:var(--blue-light);">→</span> Envio/feedback de tarefas</li>
+            <li style="font-size:.82rem; font-weight:300; display:flex; gap:.55rem;"><span style="color:var(--blue-light);">→</span> Dúvidas e ajuda específica</li>
+            <li style="font-size:.82rem; font-weight:300; display:flex; gap:.55rem;"><span style="color:var(--blue-light);">→</span> Tarefa — atividades práticas de implementação</li>
+          </ul>
+        </div>
+        <div class="fi" style="padding:.85rem 1rem; background:rgba(74,179,232,.08); border-radius:9px; border-left:3px solid rgba(74,179,232,.38);">
+          <p style="font-size:.8rem; font-weight:300; line-height:1.58; opacity:.78;">Canal direto para dúvidas, direcionamento e qualquer tipo de suporte durante os 4 meses do programa</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SLIDE 08: JORNADA DE DESENVOLVIMENTO ── -->
+  <div class="slide bg-mid" id="slide-7" data-steps="7">
+    <div class="two-col">
+      <div class="col" style="align-items:stretch;">
+        <div class="fi label">Direcionando e evoluindo</div>
+        <h2 class="fi">De <span style="color:var(--blue-light);">dentro para fora</span></h2>
+        <div class="fi divider"></div>
+        <div style="display:flex; flex-direction:column; gap:.75rem;">
+          <div class="fi phase">
+            <div class="phase-num">1</div>
+            <div class="phase-text">
+              <h3>Você com você mesmo</h3>
+              <p>Seus padrões, sua maneira de pensar e reagir</p>
+            </div>
+          </div>
+          <div class="fi phase">
+            <div class="phase-num">2</div>
+            <div class="phase-text">
+              <h3>Você com seu entorno</h3>
+              <p>Liderados, pares, líder e stakeholders diretos</p>
+            </div>
+          </div>
+          <div class="fi phase">
+            <div class="phase-num">3</div>
+            <div class="phase-text">
+              <h3>Você com alcance estendido</h3>
+              <p>Liderados indiretos, outros stakeholders, lideranças seniores</p>
+            </div>
+          </div>
+          <div class="fi phase">
+            <div class="phase-num">4</div>
+            <div class="phase-text">
+              <h3>Você operando de maneira sistêmica</h3>
+              <p>Alcance organizacional</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col" style="align-items:stretch;">
+        <div class="fi label">Como funciona cada sessão?</div>
+        <div style="display:flex; flex-direction:column; gap:.75rem; margin-top:.2rem;">
+          <div class="fi session-item">
+            <div class="session-icon">🌡</div>
+            <div class="session-text">
+              <h3>Termômetro</h3>
+              <p>O que rolou na última quinzena? Momento para trocarmos de maneira ampla referente aos desafios do dia a dia</p>
+            </div>
+          </div>
+          <div class="fi session-item">
+            <div class="session-icon">🧰</div>
+            <div class="session-text">
+              <h3>Caixa de ferramentas</h3>
+              <p>Os pilares em estrutura de material</p>
+            </div>
+          </div>
+          <div class="fi session-item">
+            <div class="session-icon">✏️</div>
+            <div class="session-text">
+              <h3>Tarefa</h3>
+              <p>Atividades práticas de implementação</p>
+            </div>
+          </div>
+        </div>
+        <div class="fi label" style="margin-top:1rem;">WhatsApp como acelerador</div>
+        <div class="fi card-accent">
+          <ul style="list-style:none; display:flex; flex-direction:column; gap:.35rem; padding-left:.1rem;">
+            <li style="font-size:.82rem; font-weight:300; display:flex; gap:.55rem;"><span style="color:var(--blue-light);">→</span> Envio/feedback de tarefas</li>
+            <li style="font-size:.82rem; font-weight:300; display:flex; gap:.55rem;"><span style="color:var(--blue-light);">→</span> Dúvidas e ajuda específica</li>
+            <li style="font-size:.82rem; font-weight:300; display:flex; gap:.55rem;"><span style="color:var(--blue-light);">→</span> Tarefa — atividades práticas de implementação</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SLIDE 09: DEPOIMENTOS ── -->
+  <div class="slide bg-dark" id="slide-8" data-steps="0" style="padding:3vw 5vw;">
+    <div class="col" style="width:100%; max-width:980px;">
+      <div class="label">Quem já passou por aqui</div>
+      <h2>Resultados <span style="color:var(--blue-light);">reais</span></h2>
+      <div class="divider"></div>
+      <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:1.1rem;">
+        <div class="testi">
+          <p class="testi-text">Quase 8 anos depois eu ainda sigo usando seus exemplos e ensinamentos no meu dia a dia.</p>
+          <div class="testi-author">Kaique</div>
+          <div class="testi-role">Operations Lead | Team management, fraud prevention</div>
+        </div>
+        <div class="testi">
+          <p class="testi-text">E em 2017 você mudou completamente minha vida e minha carreira! Serei sempre grato por ter tido você como meu líder!</p>
+          <div class="testi-author">Kaique S.</div>
+          <div class="testi-role">Operations Lead | Team management, fraud prevention</div>
+        </div>
+        <div class="testi">
+          <p class="testi-text">É isso! Obrigada por me ensinar tanto! Bora 🚀🚀🚀</p>
+          <div class="testi-author">Nathalia</div>
+          <div class="testi-role">Arquiteta e Engenheira Civil | MBA Gerenciamento de Projetos</div>
+        </div>
+        <div class="testi" style="grid-column:span 2;">
+          <p class="testi-text">I was mentored by Yury during the second semester of 2024 at DiDi/99. My experience was truly amazing. I was facing some tough decisions regarding my career direction and to have his guidance through a time like that was important to me. What sets Yury apart is his ability to balance a strong human side with deep experience in technology companies and strong understanding of how the job market works. He has a natural ability to connect with his mentees and provide realistic advices. I recommend him as a mentor for anyone who is looking to grow and to develop the capacity of making complex professional decisions. Thanks for everything, Yury!</p>
+          <div class="testi-author">Maria Paula</div>
+          <div class="testi-role">Product Ops Manager @ 99 | DiDi</div>
+        </div>
+        <div class="testi">
+          <p class="testi-text">foi MUITO importante pra mim a nossa troca! Obrigada demais!</p>
+          <div class="testi-author">Carla</div>
+          <div class="testi-role">Screenwriter - Producer - Director</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SLIDE 10: TRAJETÓRIA ── -->
+  <div class="slide bg-mid" id="slide-9" data-steps="0">
+    <div class="two-col">
+      <div class="col">
+        <div class="label">Quem vai te guiar</div>
+        <h2>Minha <span style="color:var(--blue-light);">trajetória</span></h2>
+        <div class="divider"></div>
+        <div style="display:flex; flex-direction:column; gap:0;">
+          <div class="traj-row"><span class="traj-year">2013</span><span class="traj-role">Gerente Júnior&nbsp;<span class="traj-company">— Top Group</span></span></div>
+          <div class="traj-row"><span class="traj-year">2013</span><span class="traj-role">Trainee&nbsp;<span class="traj-company">— Riachuelo</span></span></div>
+          <div class="traj-row"><span class="traj-year">15/16</span><span class="traj-role">Gerente&nbsp;<span class="traj-company">— Riachuelo</span></span></div>
+          <div class="traj-row"><span class="traj-year">16/17</span><span class="traj-role">Head Operações&nbsp;<span class="traj-company">— Vuelo Alto</span></span></div>
+          <div class="traj-row"><span class="traj-year">17/18</span><span class="traj-role">Gerente&nbsp;<span class="traj-company">— Uber</span></span></div>
+          <div class="traj-row"><span class="traj-year">18–20</span><span class="traj-role">Gerente Senior&nbsp;<span class="traj-company">— Uber</span></span></div>
+          <div class="traj-row"><span class="traj-year">22–23</span><span class="traj-role">Head&nbsp;<span class="traj-company">— 99</span></span></div>
+          <div class="traj-row"><span class="traj-year">24–25</span><span class="traj-role">Chief of Staff Global&nbsp;<span class="traj-company">— 99/Didi</span></span></div>
+        </div>
+      </div>
+      <div class="col" style="justify-content:center; gap:1rem;">
+        <div class="card" style="text-align:center;">
+          <div style="font-family:'Outfit',sans-serif; font-size:2.5rem; font-weight:800; color:var(--blue-light); line-height:1; letter-spacing:-.01em;">12+</div>
+          <div style="font-size:.8rem; opacity:.62; margin-top:.24rem; font-weight:300;">anos em gestão corporativa</div>
+        </div>
+        <div class="card" style="text-align:center;">
+          <div style="font-family:'Outfit',sans-serif; font-size:2.5rem; font-weight:800; color:var(--blue-light); line-height:1; letter-spacing:-.01em;">5</div>
+          <div style="font-size:.8rem; opacity:.62; margin-top:.24rem; font-weight:300;">grandes empresas de tecnologia</div>
+        </div>
+        <div class="card">
+          <p style="font-size:.82rem; font-weight:300; line-height:1.62; opacity:.8;">Depois de bastante tempo no corporativo escalando minha carreira e apoiando tantos outros, hoje estou dedicado a apoiar líderes a atingirem o nível de liderança estratégica.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SLIDE 11: VALOR (com sub-steps) ── -->
+  <div class="slide bg-blue" id="slide-10" data-steps="5">
+    <div class="col" style="width:100%; max-width:720px; align-items:stretch;">
+      <div class="label center">Quanto vale</div>
+      <h2 class="center">O valor do <span style="color:var(--blue-light);">programa</span></h2>
+      <div class="divider" style="margin:.48rem auto .9rem;"></div>
+      <div style="border:1px solid rgba(74,179,232,.2); border-radius:13px; overflow:hidden; background:rgba(255,255,255,.07);">
+        <div class="fi price-row">
+          <div class="price-label">08 Sessões individuais customizadas</div>
+          <div class="price-val">R$ 12.000</div>
+        </div>
+        <div class="fi price-row">
+          <div class="price-label">Método de desenvolvimento</div>
+          <div class="price-val">R$ 4.000</div>
+        </div>
+        <div class="fi price-row">
+          <div class="price-label">Whatsapp individual por 04 meses</div>
+          <div class="price-val">R$ 4.500</div>
+        </div>
+        <div class="fi price-row price-total" style="background:rgba(74,179,232,.1);">
+          <div class="price-label">Valor total estimado de quanto vale a mentoria</div>
+          <div class="price-val" style="color:var(--gold);">R$ 20.500</div>
+        </div>
+      </div>
+      <p class="fi center lead" style="font-size:.95rem; margin-top:.6rem; font-style:italic;">
+        E se você pudesse ter um desconto de 50% desse valor,<br>você se tornaria cliente hoje?
+      </p>
+    </div>
+  </div>
+
+  <!-- ── SLIDE 12: INVESTIMENTO ── -->
+  <div class="slide bg-dark" id="slide-11" data-steps="2">
+    <div class="col" style="width:100%; max-width:780px; align-items:stretch;">
+      <div class="label center">Investimento</div>
+      <h2 class="center">Escolha seu <span style="color:var(--blue-light);">plano</span></h2>
+      <div class="divider" style="margin:.48rem auto .9rem;"></div>
+      <div class="two-col" style="gap:1.6rem;">
+        <div class="fi invest-box main">
+          <div class="label">Investimento total</div>
+          <div class="big-price"><span class="currency">R$</span>9.750</div>
+          <div class="installment">ou 08× R$ 1.450 no cartão</div>
+          <div style="margin-top:.9rem; font-size:.76rem; opacity:.52; line-height:1.55; font-weight:300;">Condição válida por até 30 dias</div>
+        </div>
+        <div class="fi invest-box" style="background:linear-gradient(135deg,rgba(100,220,130,.15),rgba(100,220,130,.04)); border:2px solid rgba(100,220,130,.45);">
+          <div class="label" style="color:#6edc8a;">Investimento Protagonista</div>
+          <div class="big-price" style="color:#6edc8a;"><span class="currency" style="color:#6edc8a;">R$</span>7.997</div>
+          <div class="installment" style="color:rgba(110,220,138,.65);">ou 12× R$ 800 no cartão</div>
+          <div style="margin-top:.9rem; font-size:.76rem; opacity:.52; line-height:1.55; font-weight:300;">Condição válida para fechamento agora na call</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SLIDE 13: CTA FINAL ── -->
+  <div class="slide bg-accent center" id="slide-12" data-steps="0">
+    <div class="col center" style="gap:1.7rem; max-width:640px; align-items:center;">
+      <div class="label" style="color:rgba(13,31,53,.54);">Próximo passo</div>
+      <h1 style="color:var(--navy); font-size:clamp(2.6rem,6.5vw,5.5rem); line-height:1.02;">Vamos nessa?!</h1>
+      <div class="divider" style="background:linear-gradient(90deg,rgba(13,31,53,.32),transparent); margin:0 auto;"></div>
+      <p class="lead" style="color:rgba(13,31,53,.68); max-width:470px;">
+        Esse é o momento de sair da liderança operacional e construir sua presença estratégica. Com método, com intenção, com resultado.
+      </p>
+      <div style="padding:.95rem 2.1rem; background:var(--navy); border-radius:999px; color:var(--blue-light); font-family:'Plus Jakarta Sans',sans-serif; font-weight:700; font-size:.88rem; letter-spacing:.1em; text-transform:uppercase;">
+        por Yury Garcia
+      </div>
+    </div>
+  </div>
+
+</div><!-- /deck -->
+
+<div id="nav">
+  <button class="nav-btn" onclick="navigate(-1)">&#8592;</button>
+  <div id="counter">01 / 13</div>
+  <button class="nav-btn" onclick="navigate(1)">&#8594;</button>
+</div>
+
+<script>
+const slides   = Array.from(document.querySelectorAll('.slide'));
+const total    = slides.length;
+let   current  = 0;
+let   animating = false;
+
+const slideSteps = slides.map(s => ({
+  max: parseInt(s.dataset.steps) || 0,
+  shown: 0
+}));
+
+function getFiItems(slideEl) {
+  return Array.from(slideEl.querySelectorAll('.fi'));
+}
+
+// Build dots
+const dotsEl = document.getElementById('dots');
+slides.forEach((_, i) => {
+  const d = document.createElement('div');
+  d.className = 'dot' + (i === 0 ? ' active' : '');
+  d.onclick = () => jumpToSlide(i);
+  dotsEl.appendChild(d);
+});
+
+function updateUI() {
+  document.getElementById('counter').textContent =
+    String(current + 1).padStart(2,'0') + ' / ' + String(total).padStart(2,'0');
+  document.querySelectorAll('.dot').forEach((d,i) => d.classList.toggle('active', i === current));
+  document.getElementById('progress').style.width = ((current / (total - 1)) * 100) + '%';
+}
+
+function showFiUpTo(slideEl, n) {
+  getFiItems(slideEl).forEach((el, i) => el.classList.toggle('shown', i < n));
+}
+
+// Instantly reset fi items without CSS transition (prevents flash on slide entry)
+function resetFiInstant(slideEl, showAll) {
+  const items = getFiItems(slideEl);
+  items.forEach(el => {
+    el.classList.add('instant');
+    if (showAll) el.classList.add('shown');
+    else         el.classList.remove('shown');
+  });
+  // Force reflow so browser applies instant state immediately
+  slideEl.getBoundingClientRect();
+  // Remove instant class next frame so future transitions work normally
+  requestAnimationFrame(() => {
+    items.forEach(el => el.classList.remove('instant'));
+  });
+}
+
+function goToSlide(n, fromBack) {
+  if (animating || n === current || n < 0 || n >= total) return;
+  animating = true;
+
+  const prev = slides[current];
+  const next = slides[n];
+
+  prev.classList.remove('active');
+  prev.classList.add(fromBack ? 'exit-back' : 'exit-fwd');
+  setTimeout(() => prev.classList.remove('exit-fwd','exit-back'), 420);
+
+  if (fromBack) {
+    slideSteps[n].shown = slideSteps[n].max;
+    resetFiInstant(next, true);
+  } else {
+    slideSteps[n].shown = 0;
+    resetFiInstant(next, false);
+  }
+
+  next.classList.add('active');
+  current = n;
+  updateUI();
+  setTimeout(() => { animating = false; }, 580);
+}
+
+function jumpToSlide(n) {
+  if (n === current) return;
+  goToSlide(n, n < current);
+}
+
+function navigate(dir) {
+  if (animating) return;
+  const state   = slideSteps[current];
+  const fiItems = getFiItems(slides[current]);
+
+  if (dir === 1) {
+    if (state.shown < state.max) {
+      const el = fiItems[state.shown];
+      if (el) el.classList.add('shown');
+      state.shown++;
+    } else {
+      goToSlide(current + 1, false);
+    }
+  } else {
+    if (state.shown > 0) {
+      state.shown--;
+      const el = fiItems[state.shown];
+      if (el) el.classList.remove('shown');
+    } else {
+      goToSlide(current - 1, true);
+    }
+  }
+}
+
+// Keyboard
+document.addEventListener('keydown', e => {
+  if (['ArrowRight','ArrowDown',' '].includes(e.key)) { e.preventDefault(); navigate(1); }
+  else if (['ArrowLeft','ArrowUp'].includes(e.key))   { e.preventDefault(); navigate(-1); }
+});
+
+// Click on deck
+document.getElementById('deck').addEventListener('click', e => {
+  if (e.target.closest('#nav,#dots,.toggle-btn,.pillars-overlay')) return;
+  navigate(1);
+});
+
+// Touch
+let tx = 0;
+document.addEventListener('touchstart', e => { tx = e.touches[0].clientX; }, { passive: true });
+document.addEventListener('touchend',   e => {
+  const dx = e.changedTouches[0].clientX - tx;
+  if (Math.abs(dx) > 40) navigate(dx < 0 ? 1 : -1);
+});
+
+// Toolbox toggle
+function togglePillars(e) {
+  e.stopPropagation();
+  const ov  = document.getElementById('pillarsOverlay');
+  const btn = document.getElementById('toolboxBtn');
+  const open = ov.classList.toggle('visible');
+  if (btn) {
+    btn.classList.toggle('on', open);
+    btn.innerHTML = open
+      ? '<span class="toggle-indicator"></span> Fechar caixa de ferramentas'
+      : '<span class="toggle-indicator"></span> Ver pilares do método';
+  }
+}
+
+updateUI();
+</script>
+</body>
+</html>

@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Módulo 2 — Posicionamento · Liderium</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<style>
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:      #0E1117;
+  --surface: #161B24;
+  --card:    #1C2333;
+  --border:  rgba(255,255,255,0.07);
+  --accent:  #C4833A;
+  --text:    #FFFFFF;
+  --muted:   #4A5568;
+  --serif:   'DM Serif Display', Georgia, serif;
+  --sans:    'DM Sans', system-ui, sans-serif;
+}
+
+html { scroll-behavior: smooth; }
+body { font-family: var(--sans); background: var(--bg); color: var(--text); overflow-x: hidden; }
+
+#progress { position: fixed; top: 0; left: 0; height: 2px; background: var(--accent); width: 0%; transition: width 0.2s; z-index: 300; }
+
+#hud { position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 20px; z-index: 200; pointer-events: none; }
+#slide-counter { font-size: 12px; letter-spacing: 0.16em; color: var(--muted); font-weight: 400; }
+.nav-btn { pointer-events: all; background: var(--card); border: 1px solid var(--border); border-radius: 50%; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #fff; transition: border-color 0.2s, color 0.2s; }
+.nav-btn:hover { border-color: var(--accent); color: var(--accent); }
+.nav-btn svg { width: 14px; height: 14px; }
+
+#click-hint { position: fixed; bottom: 28px; right: 36px; display: flex; align-items: center; gap: 8px; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); z-index: 200; pointer-events: none; transition: opacity 0.4s; }
+.hint-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); animation: pulse 1.8s ease-in-out infinite; }
+@keyframes pulse { 0%,100% { opacity: 0.3; transform: scale(1); } 50% { opacity: 1; transform: scale(1.4); } }
+
+#brand { position: fixed; bottom: 28px; left: 36px; font-size: 11px; letter-spacing: 0.1em; color: var(--muted); z-index: 200; pointer-events: none; }
+
+.slide { min-height: 100vh; display: flex; flex-direction: column; justify-content: center; padding: 80px 8vw 100px; border-bottom: 1px solid var(--border); position: relative; }
+.slide-tag { font-size: 11px; font-weight: 500; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); margin-bottom: 40px; }
+.divider { width: 44px; height: 2px; background: var(--accent); margin-bottom: 32px; }
+
+/* ── REVEAL ── */
+[data-step] { opacity: 0 !important; transform: translateY(18px) !important; transition: opacity 0.5s ease, transform 0.5s ease; pointer-events: none !important; }
+[data-step].revealed { opacity: 1 !important; transform: translateY(0) !important; pointer-events: auto !important; }
+[data-step="0"] { opacity: 1 !important; transform: none !important; pointer-events: auto !important; }
+
+/* ── TYPOGRAPHY ── */
+h1 { font-family: var(--serif); font-size: clamp(42px, 5.5vw, 72px); line-height: 1.06; color: #fff; margin-bottom: 20px; }
+h2 { font-family: var(--serif); font-size: clamp(30px, 3.5vw, 52px); line-height: 1.1; color: #fff; margin-bottom: 24px; }
+.lead { font-size: clamp(18px, 1.7vw, 22px); line-height: 1.65; color: #fff; max-width: 760px; font-weight: 300; }
+.subtitle-lead { font-family: 'DM Serif Display', Georgia, serif; font-style: italic; font-size: clamp(20px, 2vw, 26px); line-height: 1.5; color: var(--accent); max-width: 760px; font-weight: 400; margin-bottom: 12px; }
+
+/* ── COVER ── */
+.slide-cover { background: var(--bg); }
+.cover-badge { display: inline-flex; align-items: center; background: rgba(196,131,58,0.12); border: 1px solid rgba(196,131,58,0.3); color: var(--accent); font-size: 11px; font-weight: 500; letter-spacing: 0.2em; text-transform: uppercase; padding: 7px 18px; border-radius: 100px; margin-bottom: 40px; }
+.cover-author { margin-top: 44px; font-size: 18px; color: #fff; font-weight: 300; }
+
+/* ── ITEM LIST ── */
+.item-list { list-style: none; display: flex; flex-direction: column; gap: 18px; }
+.item-list li { display: flex; align-items: flex-start; gap: 16px; font-size: clamp(17px, 1.6vw, 21px); line-height: 1.5; color: #fff; font-weight: 300; }
+.item-list li .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); margin-top: 10px; flex-shrink: 0; }
+
+/* ── WHAT IT BUYS — 3 cards horizontais ── */
+.buys-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; max-width: 900px; margin-top: 32px; }
+.buy-card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 28px 26px; }
+.buy-icon { font-size: 22px; margin-bottom: 14px; }
+.buy-title { font-family: var(--serif); font-size: clamp(17px, 1.5vw, 21px); color: var(--accent); margin-bottom: 10px; line-height: 1.2; }
+.buy-desc { font-size: clamp(14px, 1.2vw, 17px); color: #fff; font-weight: 300; line-height: 1.55; }
+
+/* ── CONTRAST BLOCK — analista vs gestor ── */
+.contrast-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; max-width: 860px; margin-top: 32px; }
+.contrast-col { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 28px 30px; }
+.contrast-col.highlight { border-color: rgba(196,131,58,0.5); background: var(--surface); }
+.contrast-label { font-size: 11px; font-weight: 500; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); margin-bottom: 16px; }
+.contrast-col.highlight .contrast-label { color: var(--accent); }
+.contrast-role { font-family: var(--serif); font-size: clamp(18px, 1.7vw, 24px); color: #fff; margin-bottom: 18px; line-height: 1.2; }
+.contrast-moeda { font-size: clamp(14px, 1.2vw, 17px); color: #fff; font-weight: 300; line-height: 1.55; }
+.contrast-moeda strong { color: var(--accent); font-weight: 500; }
+
+/* ── EQUATION BLOCK ── */
+.equation-wrap { max-width: 820px; margin-top: 32px; }
+.equation-box { background: var(--surface); border: 1px solid rgba(196,131,58,0.3); border-radius: 16px; padding: 36px 44px; margin-bottom: 24px; }
+.equation-label { font-size: 11px; font-weight: 500; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); margin-bottom: 18px; }
+.equation-row { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+.eq-term { font-family: var(--serif); font-size: clamp(18px, 1.8vw, 26px); color: #fff; line-height: 1.2; }
+.eq-term span { display: block; font-family: var(--sans); font-size: clamp(11px, 1vw, 13px); color: var(--muted); font-weight: 300; margin-top: 4px; font-style: normal; }
+.eq-op { font-family: var(--serif); font-size: clamp(22px, 2vw, 30px); color: var(--accent); line-height: 1; }
+.equation-note { font-size: clamp(15px, 1.3vw, 18px); color: #fff; font-weight: 300; line-height: 1.6; max-width: 680px; }
+
+/* ── LEVERS TABLE ── */
+.levers-wrap { max-width: 820px; margin-top: 28px; }
+.lever-row { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 0; border-bottom: 1px solid var(--border); }
+.lever-row.header { border-bottom: 2px solid rgba(196,131,58,0.3); padding-bottom: 10px; margin-bottom: 4px; }
+.lever-cell { padding: 14px 16px; font-size: clamp(13px, 1.1vw, 16px); color: #fff; font-weight: 300; line-height: 1.4; }
+.lever-row.header .lever-cell { font-size: 11px; font-weight: 500; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); padding-bottom: 8px; }
+.lever-cell.name { font-weight: 500; color: var(--accent); }
+.lever-cell.pct { text-align: center; }
+
+/* ── HIGHLIGHT BOX ── */
+.highlight-box { background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 12px; padding: 36px 44px; max-width: 800px; margin-top: 28px; }
+
+/* ── FINAL ── */
+.slide-final { background: var(--surface); }
+.final-badge { display: inline-block; background: rgba(196,131,58,0.12); border: 1px solid rgba(196,131,58,0.25); color: var(--accent); font-size: 11px; font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase; padding: 6px 16px; border-radius: 100px; margin-bottom: 28px; }
+
+/* ── TASK ── */
+.task-steps { list-style: none; display: flex; flex-direction: column; gap: 16px; margin-top: 24px; max-width: 720px; }
+.task-steps li { display: flex; align-items: flex-start; gap: 16px; font-size: clamp(16px, 1.4vw, 20px); line-height: 1.55; color: #fff; font-weight: 300; }
+.step-num { width: 26px; height: 26px; border-radius: 50%; background: rgba(196,131,58,0.15); border: 1px solid rgba(196,131,58,0.35); color: var(--accent); font-size: 12px; font-weight: 500; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+.task-placeholder { margin-top: 32px; max-width: 720px; padding: 24px 32px; background: var(--card); border: 2px dashed rgba(196,131,58,0.3); border-radius: 12px; }
+.task-placeholder-label { font-size: 11px; font-weight: 500; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
+.task-placeholder-text { font-size: clamp(15px, 1.3vw, 18px); color: var(--muted); font-weight: 300; line-height: 1.55; font-style: italic; }
+
+@media (max-width: 760px) {
+  .buys-grid { grid-template-columns: 1fr; }
+  .contrast-grid { grid-template-columns: 1fr; }
+  .lever-row { grid-template-columns: 1fr 1fr; }
+}
+</style>
+</head>
+<body>
+
+<div id="progress"></div>
+<div id="hud">
+  <button class="nav-btn" onclick="navigate(-1)" aria-label="Anterior">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+  </button>
+  <span id="slide-counter">01 / 07</span>
+  <button class="nav-btn" onclick="navigate(1)" aria-label="Próximo">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+  </button>
+</div>
+<div id="click-hint"><div class="hint-dot"></div>clique para avançar</div>
+<div id="brand">oyurygarcia</div>
+
+
+<!-- ══ SLIDE 0 — CAPA ══ -->
+<div class="slide slide-cover" data-slide="0">
+  <div data-step="0">
+    <div class="cover-badge">Módulo 2 · Aula 1</div>
+    <h1>Posicionamento</h1>
+  </div>
+  <p class="cover-author" data-step="1">por oyurygarcia</p>
+</div>
+
+
+<!-- ══ SLIDE 1 — ESTA AULA ══ -->
+<div class="slide" data-slide="1">
+  <div data-step="0">
+    <div class="slide-tag">01 — Esta aula</div>
+    <div class="divider"></div>
+    <h2>Nessa aula</h2>
+  </div>
+  <p class="subtitle-lead" data-step="1">Vamos falar sobre o conceito de posicionamento, de capital político — e vamos destrinchar isso.</p>
+  <ul class="item-list" style="margin-top: 32px; max-width: 720px;">
+    <li data-step="2"><span class="dot"></span>O que é posicionamento?</li>
+    <li data-step="3"><span class="dot"></span>O que é capital político e o que ele compra?</li>
+    <li data-step="4"><span class="dot"></span>Como capital político é construído.</li>
+    <li data-step="5"><span class="dot"></span>As alavancas do módulo.</li>
+  </ul>
+</div>
+
+
+<!-- ══ SLIDE 2 — O QUE É POSICIONAMENTO ══ -->
+<div class="slide" data-slide="2">
+  <div data-step="0">
+    <div class="slide-tag">02 — O conceito</div>
+    <div class="divider"></div>
+    <h2>Afinal, o que é posicionamento?</h2>
+  </div>
+  <ul class="item-list" style="margin-top: 12px; max-width: 760px;">
+    <li data-step="1"><span class="dot"></span>Posicionamento é a maneira como você atua e aparece dentro das dinâmicas organizacionais.</li>
+    <li data-step="2"><span class="dot"></span>É o modo como você navega em diferentes ambientes.</li>
+    <li data-step="3"><span class="dot"></span>É a forma como você ocupa o espaço.</li>
+    <li data-step="4"><span class="dot"></span>É escolher onde e como aparecer.</li>
+    <li data-step="5"><span class="dot"></span>É a arte de maximizar capital político.</li>
+  </ul>
+</div>
+
+
+<!-- ══ SLIDE 3 — A MOEDA CORPORATIVA (slide 9 do método) ══ -->
+<div class="slide" data-slide="3">
+  <div data-step="0">
+    <div class="slide-tag">03 — A moeda corporativa</div>
+    <div class="divider"></div>
+    <h2>Entendendo a moeda corporativa</h2>
+  </div>
+  <p class="subtitle-lead" data-step="0-sub" style="opacity:1!important;transform:none!important;pointer-events:auto!important;margin-bottom:8px;">A moeda com que você compra qualquer coisa no ambiente corporativo é capital político</p>
+  <p class="subtitle-lead" data-step="1">O que capital político "compra"?</p>
+  <div class="buys-grid">
+    <div class="buy-card" data-step="2">
+      <div class="buy-title">Oportunidades profissionais</div>
+      <div class="buy-desc">Promoção, mudança de área, participação em projeto estratégico.</div>
+    </div>
+    <div class="buy-card" data-step="3">
+      <div class="buy-title">Credibilidade</div>
+      <div class="buy-desc">Reconhecimento público, menos necessidade de justificativa e explicações, negociações mais fáceis.</div>
+    </div>
+    <div class="buy-card" data-step="4">
+      <div class="buy-title">Qualidade de vida</div>
+      <div class="buy-desc">Mais flexibilidade, mais fluidez e menos fricção no ambiente de trabalho.</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══ SLIDE 4 — PERFORMANCE VS CAPITAL POLÍTICO (slide 10 do método) ══ -->
+<div class="slide" data-slide="4">
+  <div data-step="0">
+    <div class="slide-tag">04 — A virada de chave</div>
+    <div class="divider"></div>
+    <h2>Dentro de uma empresa, performance é um dos meios. Capital político é o fim.</h2>
+  </div>
+  <p class="lead" data-step="1" style="margin-top: 28px; max-width: 860px;">Quando você é analista a moeda de troca (capital político) é performance</p>
+  <p class="lead" data-step="2" style="margin-top: 16px; max-width: 860px;">Quando você é gestor:</p>
+  <!-- caixa pontilhada — slide 10 do método -->
+  <div data-step="3" style="margin-top: 16px; max-width: 860px; background: var(--surface); border: 1px dashed rgba(196,131,58,0.4); border-radius: 16px; padding: 28px 32px;">
+    <!-- linha da equação com caixinhas abaixo de cada termo -->
+    <div style="display: flex; align-items: flex-start; gap: 8px;">
+
+      <!-- Moeda de troca -->
+      <div style="display: flex; flex-direction: column; align-items: center; gap: 10px; flex: 1;">
+        <div style="font-size: clamp(12px,1.1vw,15px); font-weight: 500; color: var(--accent); white-space: nowrap;">Moeda de troca</div>
+        <div style="background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 8px 14px; font-size: clamp(11px,1vw,13px); color: #fff; font-weight: 300; text-align: center;">Capital Político</div>
+      </div>
+
+      <div style="font-size: clamp(16px,1.5vw,22px); color: var(--accent); font-weight: 300; padding-top: 2px;">=</div>
+
+      <!-- Relacionamento -->
+      <div style="display: flex; flex-direction: column; align-items: center; gap: 10px; flex: 1;">
+        <div style="font-size: clamp(12px,1.1vw,15px); font-weight: 500; color: #fff; white-space: nowrap;">Relacionamento</div>
+        <div style="background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 8px 14px; font-size: clamp(11px,1vw,13px); color: #fff; font-weight: 300; text-align: center;">Confiança<br>Alianças</div>
+      </div>
+
+      <div style="font-size: clamp(16px,1.5vw,22px); color: var(--accent); font-weight: 300; padding-top: 2px;">+</div>
+
+      <!-- Percepção -->
+      <div style="display: flex; flex-direction: column; align-items: center; gap: 10px; flex: 1;">
+        <div style="font-size: clamp(12px,1.1vw,15px); font-weight: 500; color: #fff; white-space: nowrap;">Percepção</div>
+        <div style="background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 8px 14px; font-size: clamp(11px,1vw,13px); color: #fff; font-weight: 300; text-align: center;">Performance<br>Narrativa<br>Navegabilidade</div>
+      </div>
+
+      <div style="font-size: clamp(16px,1.5vw,22px); color: var(--accent); font-weight: 300; padding-top: 2px;">+</div>
+
+      <!-- Influência -->
+      <div style="display: flex; flex-direction: column; align-items: center; gap: 10px; flex: 1;">
+        <div style="font-size: clamp(12px,1.1vw,15px); font-weight: 500; color: #fff; white-space: nowrap;">Influência</div>
+        <div style="background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 8px 14px; font-size: clamp(11px,1vw,13px); color: #fff; font-weight: 300; text-align: center;">Autoridade<br>Leitura de contexto</div>
+      </div>
+
+    </div>
+  </div>
+  <div class="highlight-box" data-step="4" style="margin-top: 20px; max-width: 900px;">
+    <p class="subtitle-lead" style="margin-bottom: 6px; font-size: clamp(16px, 1.4vw, 20px);">Posicionar-se é trabalhar seu capital político.</p>
+    <p class="subtitle-lead" style="margin-bottom: 0; font-size: clamp(16px, 1.4vw, 20px);">Performance é um dos elementos que compõe a tríade do capital político.</p>
+  </div>
+</div>
+
+
+<!-- ══ SLIDE 5 — TRÍADE ══ -->
+<div class="slide" data-slide="5">
+  <div data-step="0">
+    <div class="slide-tag">05 — A tríade</div>
+    <div class="divider"></div>
+    <h2>Portanto o seu foco como gestor não deve ser mais apenas em performance e sim na tríade do capital político</h2>
+  </div>
+  <ul class="item-list" style="margin-top: 36px; max-width: 760px;">
+    <li data-step="1"><span class="dot"></span>Quanto maior o seu capital político, maior seu poder de compra dentro da empresa — e quanto maior seu poder de compra, maior seu capital político.</li>
+    <li data-step="2"><span class="dot"></span>Sua vida fica mais fácil e a roda da prosperidade passa a girar a seu favor.</li>
+    <li data-step="3"><span class="dot"></span>E você passa a ver o mundo do trabalho com outro prisma.</li>
+  </ul>
+</div>
+
+
+<!-- ══ SLIDE 6 — AS ALAVANCAS (slide 11 do método) ══ -->
+<div class="slide" data-slide="6">
+  <div data-step="0">
+    <div class="slide-tag">06 — As alavancas</div>
+    <div class="divider"></div>
+    <h2>Destrinchando as ações para aumentar seu capital político</h2>
+  </div>
+  <p class="subtitle-lead" data-step="1">Capital político = nível de relacionamento + nível de percepção + nível de influência</p>
+  <div class="levers-wrap" data-step="2">
+    <div class="lever-row header">
+      <div class="lever-cell">Aulas</div>
+      <div class="lever-cell pct">Vai trabalhar o quê?</div>
+    </div>
+    <div class="lever-row" style="grid-template-columns: 2fr 3fr;" data-step="3">
+      <div class="lever-cell name">Relacionamento e alianças</div>
+      <div class="lever-cell">Nível de relacionamento</div>
+    </div>
+    <div class="lever-row" style="grid-template-columns: 2fr 3fr;" data-step="4">
+      <div class="lever-cell name">Pirâmide da autoridade</div>
+      <div class="lever-cell">Nível de percepção (80%) + nível de influência (20%)</div>
+    </div>
+    <div class="lever-row" style="grid-template-columns: 2fr 3fr;" data-step="5">
+      <div class="lever-cell name">Negociação é a arte do posicionamento</div>
+      <div class="lever-cell">Nível de percepção (20%) + nível de influência (80%)</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══ SLIDE 6 — MENSAGEM FINAL ══ -->
+<div class="slide slide-final" data-slide="7">
+  <div data-step="0">
+    <div class="slide-tag">07 — Aprendizado da aula</div>
+    <div class="divider"></div>
+    <h2>Posicionamento não acontece por acidente.</h2>
+  </div>
+  <p class="subtitle-lead" data-step="1">É construído com intencionalidade a partir da tríade do capital político: relacionamento, percepção e influência.</p>
+  <ul class="item-list" style="margin-top: 32px; max-width: 720px;">
+    <li data-step="2"><span class="dot"></span>Você agora sabe o que é capital político, o que ele compra e como ele é construído.</li>
+    <li data-step="3"><span class="dot"></span>Nas próximas aulas vamos aprofundar cada uma das alavancas.</li>
+    <li data-step="4"><span class="dot"></span>Mas antes: você precisa conhecer o seu tabuleiro.</li>
+  </ul>
+</div>
+
+
+<!-- ══ SLIDE 7 — TAREFA ══ -->
+<div class="slide" data-slide="8">
+  <div data-step="0">
+    <div class="slide-tag">08 — Tarefa</div>
+    <div class="divider"></div>
+    <h2>Mapa do ambiente</h2>
+  </div>
+  <p class="subtitle-lead" data-step="1">Entendendo o tabuleiro e os jogadores.</p>
+  <ul class="task-steps" data-step="2">
+    <li><span class="step-num">1</span>Líder direto</li>
+    <li><span class="step-num">2</span>Liderados diretos</li>
+    <li><span class="step-num">3</span>Pares diretos</li>
+    <li><span class="step-num">4</span>Principais stakeholders</li>
+    <li><span class="step-num">5</span>Líderes seniores relevantes</li>
+    <li><span class="step-num">6</span>Outros relevantes (ex: líder de operação terceirizada, liderado indireto formador de opinião, fornecedor crítico com alto poder de influência)</li>
+  </ul>
+</div>
+
+
+<script>
+const slides      = Array.from(document.querySelectorAll('[data-slide]'));
+const totalSlides = slides.length;
+const bar         = document.getElementById('progress');
+const counter     = document.getElementById('slide-counter');
+const hint        = document.getElementById('click-hint');
+
+const slideStepEls = slides.map(slide =>
+  Array.from(slide.querySelectorAll('[data-step]'))
+    .filter(el => el.dataset.step !== '0')
+    .sort((a, b) => +a.dataset.step - +b.dataset.step)
+);
+
+function getActiveIdx() {
+  let best = 0, bestScore = -Infinity;
+  slides.forEach((s, i) => {
+    const r = s.getBoundingClientRect();
+    const vis = Math.min(r.bottom, window.innerHeight) - Math.max(r.top, 0);
+    if (vis > bestScore) { bestScore = vis; best = i; }
+  });
+  return best;
+}
+
+function updateHUD(idx) {
+  counter.textContent = `${String(idx + 1).padStart(2,'0')} / ${String(totalSlides).padStart(2,'0')}`;
+  bar.style.width = (idx / (totalSlides - 1) * 100) + '%';
+  hint.style.opacity = idx === totalSlides - 1 ? '0' : '1';
+}
+
+function revealNextInSlide(idx) {
+  const next = slideStepEls[idx].find(el => !el.classList.contains('revealed'));
+  if (next) { next.classList.add('revealed'); return true; }
+  return false;
+}
+
+function undoLastReveal(idx) {
+  const revealed = slideStepEls[idx].filter(el => el.classList.contains('revealed'));
+  if (revealed.length > 0) {
+    revealed[revealed.length - 1].classList.remove('revealed');
+    return true;
+  }
+  return false;
+}
+
+function navigate(dir) {
+  const idx = getActiveIdx();
+  if (dir === 1) {
+    const consumed = revealNextInSlide(idx);
+    if (!consumed && idx < totalSlides - 1) {
+      slides[idx + 1].scrollIntoView({ behavior: 'smooth' });
+      setTimeout(() => updateHUD(getActiveIdx()), 700);
+    }
+  } else {
+    const undone = undoLastReveal(idx);
+    if (!undone && idx > 0) {
+      slides[idx - 1].scrollIntoView({ behavior: 'smooth' });
+      setTimeout(() => updateHUD(getActiveIdx()), 700);
+    }
+  }
+  updateHUD(getActiveIdx());
+}
+
+document.addEventListener('click', e => {
+  if (e.target.closest('.nav-btn')) return;
+  navigate(1);
+});
+
+window.addEventListener('scroll', () => updateHUD(getActiveIdx()), { passive: true });
+updateHUD(0);
+</script>
+</body>
+</html>

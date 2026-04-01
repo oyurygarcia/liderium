@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Relacionamento e Alianças · Liderium</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0E1117;
+    --white: #FFFFFF;
+    --orange: #C4833A;
+    --grey: #4A5568;
+    --grey-light: #718096;
+    --card-bg: #161B27;
+    --card-border: #1E2533;
+  }
+
+  html, body {
+    width: 100%; height: 100%;
+    background: var(--bg);
+    color: var(--white);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    overflow: hidden;
+  }
+
+  /* ── SLIDE CONTAINER ── */
+  #slideshow {
+    width: 100vw; height: 100vh;
+    position: relative;
+  }
+
+  .slide {
+    position: absolute;
+    inset: 0;
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    padding: 72px 96px;
+    opacity: 0;
+    transition: opacity .4s ease;
+  }
+  .slide.active {
+    display: flex;
+    opacity: 1;
+  }
+
+  /* ── REVEAL SYSTEM ── */
+  [data-step] {
+    opacity: 0 !important;
+    transform: translateY(10px) !important;
+    transition: opacity .45s ease, transform .45s ease !important;
+    pointer-events: none !important;
+  }
+  [data-step].revealed {
+    opacity: 1 !important;
+    transform: translateY(0) !important;
+    pointer-events: auto !important;
+  }
+  [data-step="0"] {
+    opacity: 0 !important;
+    transform: translateY(10px) !important;
+  }
+  [data-step="0"].revealed {
+    opacity: 1 !important;
+    transform: translateY(0) !important;
+  }
+
+  /* ── TYPOGRAPHY ── */
+  h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(2.4rem, 5vw, 3.8rem);
+    font-weight: 400;
+    line-height: 1.15;
+    color: var(--white);
+  }
+  h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(1.7rem, 3.2vw, 2.5rem);
+    font-weight: 400;
+    line-height: 1.2;
+    color: var(--white);
+  }
+  .subtitle-lead {
+    font-family: 'DM Serif Display', serif;
+    font-style: italic;
+    font-size: clamp(1rem, 1.8vw, 1.3rem);
+    color: var(--orange);
+    margin-top: 10px;
+    line-height: 1.5;
+  }
+  .body-text {
+    font-size: clamp(.88rem, 1.4vw, 1.05rem);
+    color: var(--white);
+    line-height: 1.75;
+    font-weight: 300;
+  }
+  .slide-tag {
+    font-size: .72rem;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--grey);
+    margin-bottom: 18px;
+  }
+  .divider {
+    width: 44px; height: 2px;
+    background: var(--orange);
+    margin-bottom: 18px;
+  }
+
+  /* ── ITEM LIST ── */
+  .item-list {
+    list-style: none;
+    margin-top: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .item-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    font-size: clamp(.85rem, 1.35vw, 1rem);
+    line-height: 1.6;
+    font-weight: 300;
+  }
+  .dot {
+    width: 6px; height: 6px;
+    background: var(--orange);
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-top: 8px;
+  }
+
+  /* ── CARDS ── */
+  .card-grid {
+    display: grid;
+    gap: 16px;
+    margin-top: 22px;
+  }
+  .card-grid.cols-3 { grid-template-columns: repeat(3, 1fr); }
+  .card-grid.cols-2 { grid-template-columns: repeat(2, 1fr); }
+
+  .card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 10px;
+    padding: 22px 24px;
+  }
+  .card-label {
+    font-size: .7rem;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--orange);
+    margin-bottom: 8px;
+  }
+  .card-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(1rem, 1.6vw, 1.3rem);
+    color: var(--white);
+    margin-bottom: 8px;
+  }
+  .card-body {
+    font-size: clamp(.8rem, 1.2vw, .92rem);
+    color: var(--white);
+    line-height: 1.65;
+    font-weight: 300;
+  }
+
+  /* ── PYRAMID ── */
+  .pyramid-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin-top: 22px;
+    width: 100%;
+    max-width: 760px;
+  }
+  .pyramid-level {
+    display: grid;
+    grid-template-columns: 36px 1fr 1fr;
+    align-items: center;
+    gap: 0 16px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--card-border);
+  }
+  .pyramid-level:last-child { border-bottom: none; }
+  .pyramid-num {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.5rem;
+    color: var(--orange);
+    text-align: center;
+  }
+  .pyramid-name {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(.9rem, 1.4vw, 1.1rem);
+    color: var(--white);
+  }
+  .pyramid-desc {
+    font-size: clamp(.75rem, 1.1vw, .88rem);
+    color: var(--grey-light);
+    line-height: 1.55;
+    font-weight: 300;
+  }
+
+  /* ── TWO-COL LAYOUT ── */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-top: 22px;
+    align-items: start;
+  }
+
+  /* ── ELEMENT BLOCK (for step elements inside list) ── */
+  .element-block {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-left: 3px solid var(--orange);
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin-top: 12px;
+  }
+  .element-title {
+    font-size: clamp(.82rem, 1.25vw, .95rem);
+    font-weight: 500;
+    color: var(--orange);
+    margin-bottom: 4px;
+  }
+  .element-desc {
+    font-size: clamp(.75rem, 1.1vw, .87rem);
+    color: var(--white);
+    line-height: 1.55;
+    font-weight: 300;
+  }
+
+  /* ── DEGREES ROW ── */
+  .degree-row {
+    display: grid;
+    grid-template-columns: 100px 1fr;
+    align-items: start;
+    gap: 16px;
+    padding: 16px 0;
+    border-bottom: 1px solid var(--card-border);
+  }
+  .degree-row:last-child { border-bottom: none; }
+  .degree-badge {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1rem;
+    color: var(--white);
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 6px;
+    padding: 6px 10px;
+    text-align: center;
+  }
+  .degree-badge span {
+    display: block;
+    font-family: 'DM Sans', sans-serif;
+    font-size: .65rem;
+    color: var(--orange);
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    margin-bottom: 2px;
+  }
+
+  /* ── TASK SLIDE ── */
+  .task-box {
+    background: var(--card-bg);
+    border: 1px solid var(--orange);
+    border-radius: 12px;
+    padding: 36px 40px;
+    max-width: 680px;
+    margin-top: 24px;
+  }
+  .task-label {
+    font-size: .7rem;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--orange);
+    margin-bottom: 14px;
+  }
+  .task-text {
+    font-size: clamp(.95rem, 1.5vw, 1.15rem);
+    line-height: 1.7;
+    font-weight: 300;
+    color: var(--white);
+  }
+
+  /* ── NAV ── */
+  #nav {
+    position: fixed;
+    bottom: 32px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    z-index: 100;
+  }
+  .nav-btn {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: #1a2030;
+    border: 1px solid #2a3348;
+    color: var(--white);
+    font-size: 1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background .2s, border-color .2s;
+    line-height: 1;
+  }
+  .nav-btn:hover {
+    background: #232d42;
+    border-color: var(--orange);
+  }
+  #counter {
+    font-size: .72rem;
+    color: var(--grey);
+    letter-spacing: .06em;
+    min-width: 52px;
+    text-align: center;
+  }
+
+  /* ── SIGNATURE ── */
+  #signature {
+    position: fixed;
+    bottom: 36px; left: 40px;
+    font-size: .7rem;
+    letter-spacing: .1em;
+    color: var(--grey);
+  }
+
+  /* ── CLICK HINT ── */
+  #hint {
+    position: fixed;
+    bottom: 40px;
+    right: 40px;
+    font-size: .68rem;
+    letter-spacing: .1em;
+    color: var(--grey);
+    text-transform: uppercase;
+    opacity: 1;
+    transition: opacity .5s;
+  }
+
+  /* ── CAPA SLIDE ── */
+  .capa-module {
+    font-size: .8rem;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--orange);
+    margin-bottom: 20px;
+  }
+  .capa-by {
+    font-size: .75rem;
+    letter-spacing: .1em;
+    color: var(--grey);
+    margin-top: 20px;
+  }
+  .capa-line {
+    width: 60px; height: 1px;
+    background: var(--grey);
+    margin: 16px 0;
+  }
+
+  /* ── CONCEPT STATEMENT ── */
+  .concept-statement {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(1.2rem, 2.2vw, 1.75rem);
+    line-height: 1.5;
+    color: var(--white);
+    margin-top: 8px;
+  }
+  .concept-statement em {
+    color: var(--orange);
+    font-style: italic;
+  }
+
+  /* ── INLINE HIGHLIGHT ── */
+  .hl { color: var(--orange); }
+
+</style>
+</head>
+<body>
+
+<div id="slideshow">
+
+  <!-- ══════════════════════════════════
+       S1 — CAPA
+  ══════════════════════════════════ -->
+  <div class="slide" data-slide="1">
+    <div data-step="0">
+      <div class="capa-module">Módulo 2 · Posicionamento</div>
+      <div class="divider"></div>
+      <h1>Relacionamento<br>e Alianças</h1>
+      <div class="capa-line"></div>
+      <div class="capa-by">por oyurygarcia</div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       S2 — POR QUE ESSE MÓDULO É IMPORTANTE
+       (incorpora S2 + S3: conexão com capital político)
+  ══════════════════════════════════ -->
+  <div class="slide" data-slide="2">
+    <div data-step="0">
+      <div class="slide-tag">02 — Por que esse módulo</div>
+      <div class="divider"></div>
+      <h2>Capital político é gerado por dinâmicas sociais.</h2>
+    </div>
+
+    <p class="subtitle-lead" data-step="1">
+      E dinâmicas sociais são fruto de interações com outras pessoas dentro da companhia.
+    </p>
+
+    <div class="two-col" style="margin-top: 32px;">
+      <div class="element-block" data-step="2">
+        <div class="element-title">Capital político</div>
+        <div class="element-desc">É a moeda com que você compra qualquer coisa no ambiente corporativo — oportunidades, credibilidade, qualidade de vida.</div>
+      </div>
+      <div class="element-block" data-step="3">
+        <div class="element-title">Dinâmicas sociais</div>
+        <div class="element-desc">São o mecanismo pelo qual esse capital é acumulado. Não há capital político sem relação.</div>
+      </div>
+    </div>
+
+    <div class="element-block" data-step="4" style="margin-top: 16px;">
+      <div class="element-desc">
+        Relacionamento e Alianças trabalha o <span class="hl">nível de relacionamento</span> — a primeira e mais fundamental das três alavancas do capital político.
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       S3 — PIRÂMIDE (visão geral)
+  ══════════════════════════════════ -->
+  <div class="slide" data-slide="3">
+    <div data-step="0">
+      <div class="slide-tag">03 — A pirâmide</div>
+      <div class="divider"></div>
+      <h2>A Pirâmide do Conhecer e Construir</h2>
+    </div>
+
+    <!-- WRAPPER com grid fixo: col1=260px (espaço pirâmide), col2+col3 = textos -->
+    <div style="margin-top:20px;">
+
+      <!-- HEADER único, fixo, fora do reveal -->
+      <div style="display:grid; grid-template-columns: 260px 1fr 1fr; gap:0 0; padding-bottom:8px; border-bottom:1px solid var(--card-border);">
+        <div></div>
+        <div style="font-size:.65rem; letter-spacing:.1em; text-transform:uppercase; color:var(--orange); text-align:center; padding-right:16px;">O que é?</div>
+        <div style="font-size:.65rem; letter-spacing:.1em; text-transform:uppercase; color:var(--orange); text-align:center; padding-left:16px;">Como você valida?</div>
+      </div>
+
+      <!-- NÍVEL 1 - CONHECER (base, maior, revela primeiro) -->
+      <div data-step="1" style="display:grid; grid-template-columns: 260px 1fr 1fr; gap:0 0; padding:9px 0; border-bottom:1px solid var(--card-border); align-items:center;">
+        <div><div style="width:260px; background:#342217; border-radius:4px; padding:7px 8px; text-align:center;">
+          <div style="font-family:'DM Serif Display',serif; font-size:.78rem; color:var(--white);">1 · Conhecer</div>
+        </div></div>
+        <div style="font-size:.8rem; color:var(--white); font-weight:300; line-height:1.5; text-align:center; padding-right:16px;">Primeiro contato. Sabe da existência um do outro.</div>
+        <div style="font-size:.8rem; color:var(--white); font-weight:300; line-height:1.5; text-align:center; padding-left:16px;">Sabe seu nome e sua área. Já foram apresentados.</div>
+      </div>
+
+      <!-- NÍVEL 2 - CONSTRUIR UMA PONTE -->
+      <div data-step="2" style="display:grid; grid-template-columns: 260px 1fr 1fr; gap:0 0; padding:9px 0; border-bottom:1px solid var(--card-border); align-items:center;">
+        <div><div style="width:225px; background:#3f2c1a; border-radius:4px; padding:7px 8px; text-align:center;">
+          <div style="font-family:'DM Serif Display',serif; font-size:.78rem; color:var(--white);">2 · Construir uma ponte</div>
+        </div></div>
+        <div style="font-size:.8rem; color:var(--white); font-weight:300; line-height:1.5; text-align:center; padding-right:16px;">Abrir um canal de comunicação recíproco.</div>
+        <div style="font-size:.8rem; color:var(--white); font-weight:300; line-height:1.5; text-align:center; padding-left:16px;">Abriram um canal para troca de informações.</div>
+      </div>
+
+      <!-- NÍVEL 3 - CONFIANÇA -->
+      <div data-step="3" style="display:grid; grid-template-columns: 260px 1fr 1fr; gap:0 0; padding:9px 0; border-bottom:1px solid var(--card-border); align-items:center;">
+        <div><div style="width:190px; background:#5a3d20; border-radius:4px; padding:7px 8px; text-align:center;">
+          <div style="font-family:'DM Serif Display',serif; font-size:.78rem; color:var(--white);">3 · Confiança</div>
+        </div></div>
+        <div style="font-size:.8rem; color:var(--white); font-weight:300; line-height:1.5; text-align:center; padding-right:16px;">Crença no apoio mútuo.</div>
+        <div style="font-size:.8rem; color:var(--white); font-weight:300; line-height:1.5; text-align:center; padding-left:16px;">Pedir apoio e receber pedido de apoio.</div>
+      </div>
+
+      <!-- NÍVEL 4 - RELACIONAMENTO -->
+      <div data-step="4" style="display:grid; grid-template-columns: 260px 1fr 1fr; gap:0 0; padding:9px 0; border-bottom:1px solid var(--card-border); align-items:center;">
+        <div><div style="width:155px; background:#7a5228; border-radius:4px; padding:7px 8px; text-align:center;">
+          <div style="font-family:'DM Serif Display',serif; font-size:.78rem; color:var(--white);">4 · Relacionamento</div>
+        </div></div>
+        <div style="font-size:.8rem; color:var(--white); font-weight:300; line-height:1.5; text-align:center; padding-right:16px;">Apoio mútuo dentro de uma dinâmica estabelecida.</div>
+        <div style="font-size:.8rem; color:var(--white); font-weight:300; line-height:1.5; text-align:center; padding-left:16px;">Dinâmicas de frequência consolidadas.</div>
+      </div>
+
+      <!-- NÍVEL 5 - ALIANÇA (topo, revela por último) -->
+      <div data-step="5" style="display:grid; grid-template-columns: 260px 1fr 1fr; gap:0 0; padding:9px 0; align-items:center;">
+        <div><div style="width:120px; background:var(--orange); border-radius:4px; padding:7px 8px; text-align:center;">
+          <div style="font-family:'DM Serif Display',serif; font-size:.78rem; color:var(--bg);">5 · Aliança</div>
+        </div></div>
+        <div style="font-size:.8rem; color:var(--white); font-weight:300; line-height:1.5; text-align:center; padding-right:16px;">Apoio partidário.</div>
+        <div style="font-size:.8rem; color:var(--white); font-weight:300; line-height:1.5; text-align:center; padding-left:16px;">Há apoio em momentos de polarização.</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       S4 — NÍVEL 1: CONHECER
+  ══════════════════════════════════ -->
+  <div class="slide" data-slide="4">
+    <div data-step="0">
+      <div class="slide-tag">04 — Nível 1</div>
+      <div class="divider"></div>
+      <h2>Conhecer</h2>
+    </div>
+
+    <div data-step="1" style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:10px;">
+      <div><div style="font-size:.65rem; letter-spacing:.1em; text-transform:uppercase; color:var(--orange); margin-bottom:4px;">O que é?</div><div class="body-text">Primeiro contato. Sabe da existência um do outro.</div></div>
+      <div><div style="font-size:.65rem; letter-spacing:.1em; text-transform:uppercase; color:var(--orange); margin-bottom:4px;">Como você valida?</div><div class="body-text">Sabe seu nome e sua área. Já foram apresentados.</div></div>
+    </div>
+
+    <div class="element-block" data-step="2">
+      <div class="element-title">Apresente-se</div>
+      <div class="element-desc">Nome, área, função, sua missão na área ou na empresa.</div>
+    </div>
+
+    <div class="element-block" data-step="3">
+      <div class="element-title">Faça perguntas</div>
+      <div class="element-desc">O foco é no outro, não em você. Mostre-se interessado em perguntar mais.</div>
+    </div>
+
+    <div class="element-block" data-step="4">
+      <div class="element-title">Identifique pontos em comum</div>
+      <div class="element-desc">Princípio básico do rapport: crie identificação. Pontos em comum criam identificação.</div>
+    </div>
+
+    <div class="element-block" data-step="5">
+      <div class="element-title">Entenda o estilo de comunicação</div>
+      <div class="element-desc">A pessoa é mais aberta ou fechada? Mais objetiva ou descritiva? Mais estruturada ou espontânea?</div>
+    </div>
+
+    <div class="element-block" data-step="6">
+      <div class="element-title">Gere valor</div>
+      <div class="element-desc">Desde a indicação de um restaurante até o apoio em um projeto chave.</div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       S5 — NÍVEL 2: CONSTRUIR UMA PONTE
+  ══════════════════════════════════ -->
+  <div class="slide" data-slide="5">
+    <div data-step="0">
+      <div class="slide-tag">05 — Nível 2</div>
+      <div class="divider"></div>
+      <h2>Construir uma ponte</h2>
+    </div>
+
+    <div data-step="1" style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:10px;">
+      <div><div style="font-size:.65rem; letter-spacing:.1em; text-transform:uppercase; color:var(--orange); margin-bottom:4px;">O que é?</div><div class="body-text">Abrir um canal de comunicação recíproco.</div></div>
+      <div><div style="font-size:.65rem; letter-spacing:.1em; text-transform:uppercase; color:var(--orange); margin-bottom:4px;">Como você valida?</div><div class="body-text">Abriram um canal para troca de informações.</div></div>
+    </div>
+
+    <div class="element-block" data-step="2">
+      <div class="element-title">Mostre-se disponível</div>
+      <div class="element-desc">Mais do que "qualquer coisa tô por aqui" — faça a pessoa desejar te procurar.</div>
+    </div>
+
+    <div class="element-block" data-step="3">
+      <div class="element-title">Call to action</div>
+      <div class="element-desc">Um almoço, um café, uma indicação de restaurante ou passeio a ser enviado depois.</div>
+    </div>
+
+    <div class="element-block" data-step="4">
+      <div class="element-title">Gere valor</div>
+      <div class="element-desc">Desde a indicação de um restaurante até o apoio em um projeto chave.</div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       S6 — NÍVEL 3: CONSTRUIR CONFIANÇA
+  ══════════════════════════════════ -->
+  <div class="slide" data-slide="6">
+    <div data-step="0">
+      <div class="slide-tag">06 — Nível 3</div>
+      <div class="divider"></div>
+      <h2>Construir confiança</h2>
+    </div>
+
+    <div data-step="1" style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:10px;">
+      <div><div style="font-size:.65rem; letter-spacing:.1em; text-transform:uppercase; color:var(--orange); margin-bottom:4px;">O que é?</div><div class="body-text">Crença no apoio mútuo.</div></div>
+      <div><div style="font-size:.65rem; letter-spacing:.1em; text-transform:uppercase; color:var(--orange); margin-bottom:4px;">Como você valida?</div><div class="body-text">Pedir apoio e receber pedido de apoio.</div></div>
+    </div>
+
+    <div class="element-block" data-step="2">
+      <div class="element-title">Avalie vulnerabilidade</div>
+      <div class="element-desc">O que aquela pessoa está passando? O que ela pode precisar?</div>
+    </div>
+
+    <div class="element-block" data-step="3">
+      <div class="element-title">Faça uma oferta</div>
+      <div class="element-desc">Ofereça ajuda específica com base no que você identificou.</div>
+    </div>
+
+    <div class="element-block" data-step="4">
+      <div class="element-title">Em algum momento… peça algo</div>
+      <div class="element-desc">Teste o canal de confiança a partir de necessidades reais.</div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       S7 — NÍVEL 4: CONSTRUIR RELACIONAMENTO
+  ══════════════════════════════════ -->
+  <div class="slide" data-slide="7">
+    <div data-step="0">
+      <div class="slide-tag">07 — Nível 4</div>
+      <div class="divider"></div>
+      <h2>Construir relacionamento</h2>
+    </div>
+
+    <div data-step="1" style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:10px;">
+      <div><div style="font-size:.65rem; letter-spacing:.1em; text-transform:uppercase; color:var(--orange); margin-bottom:4px;">O que é?</div><div class="body-text">Apoio mútuo dentro de uma dinâmica estabelecida.</div></div>
+      <div><div style="font-size:.65rem; letter-spacing:.1em; text-transform:uppercase; color:var(--orange); margin-bottom:4px;">Como você valida?</div><div class="body-text">Dinâmicas de frequência consolidadas.</div></div>
+    </div>
+
+    <div class="element-block" data-step="2">
+      <div class="element-title">Estabeleça uma dinâmica de frequência</div>
+      <div class="element-desc">Construa 1:1s, cafezinhos, almoços, zooms pra bater papo. Frequência sustenta relacionamento.</div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       S8 — NÍVEL 5: CONSTRUIR ALIANÇA
+  ══════════════════════════════════ -->
+  <div class="slide" data-slide="8">
+    <div data-step="0">
+      <div class="slide-tag">08 — Nível 5</div>
+      <div class="divider"></div>
+      <h2>Construir aliança</h2>
+    </div>
+
+    <div data-step="1" style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:10px;">
+      <div><div style="font-size:.65rem; letter-spacing:.1em; text-transform:uppercase; color:var(--orange); margin-bottom:4px;">O que é?</div><div class="body-text">Apoio partidário.</div></div>
+      <div><div style="font-size:.65rem; letter-spacing:.1em; text-transform:uppercase; color:var(--orange); margin-bottom:4px;">Como você valida?</div><div class="body-text">Há apoio em momentos de polarização.</div></div>
+    </div>
+
+    <div class="element-block" data-step="2">
+      <div class="element-title">Ofereça ajuda em momentos de polarização</div>
+      <div class="element-desc">Fortaleça a relação, a confiança e o relacionamento.</div>
+    </div>
+
+    <div class="element-block" data-step="3">
+      <div class="element-title">Peça ajuda em momentos de polarização</div>
+      <div class="element-desc">Avalie a qualidade da aliança e exerça seu uso.</div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       S9 — GRAU DE PROXIMIDADE
+  ══════════════════════════════════ -->
+  <div class="slide" data-slide="9">
+    <div data-step="0">
+      <div class="slide-tag">09 — Grau de proximidade</div>
+      <div class="divider"></div>
+      <h2>Assim como na família, as relações corporativas têm graus de parentesco.</h2>
+    </div>
+
+    <p class="subtitle-lead" data-step="1">
+      Entender esses graus nos ajuda a saber onde priorizar ações de relacionamento e alianças.
+    </p>
+
+    <div data-step="2" style="margin-top: 24px;">
+      <div class="degree-row">
+        <div class="degree-badge"><span>1º grau</span>Próximos</div>
+        <div>
+          <div class="element-title" style="margin-bottom: 4px;">Líder direto · Liderados diretos · Pares de interação intensa</div>
+          <div class="element-desc">Contato diário. São as relações com maior frequência e maior impacto imediato no seu capital político.</div>
+        </div>
+      </div>
+    </div>
+
+    <div data-step="3">
+      <div class="degree-row">
+        <div class="degree-badge"><span>2º grau</span>Constantes</div>
+        <div>
+          <div class="element-title" style="margin-bottom: 4px;">Stakeholders de áreas chave · Áreas pares e correlatas</div>
+          <div class="element-desc">Contato semanal. Interação constante mas não diária. Requerem atenção sistemática.</div>
+        </div>
+      </div>
+    </div>
+
+    <div data-step="4">
+      <div class="degree-row" style="border-bottom: none;">
+        <div class="degree-badge"><span>3º grau</span>Estratégicos</div>
+        <div>
+          <div class="element-title" style="margin-bottom: 4px;">Líderes seniores de áreas pares · Diretores · C-level</div>
+          <div class="element-desc">Menor frequência de interação, mas alto impacto político. Requerem intencionalidade e preparação.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       S10 — TAREFA
+  ══════════════════════════════════ -->
+  <div class="slide" data-slide="10">
+    <div data-step="0">
+      <div class="slide-tag">10 — Tarefa</div>
+      <div class="divider"></div>
+      <h2>Tarefa</h2>
+    </div>
+
+    <div class="task-box" data-step="1">
+      <div class="task-label">Ação</div>
+      <p class="task-text">
+        Preencher a avaliação de posicionamento referente à parte de Relacionamentos e Alianças.
+      </p>
+    </div>
+  </div>
+
+</div><!-- /#slideshow -->
+
+<!-- ── NAV ── -->
+<div id="nav">
+  <button class="nav-btn" id="btn-prev">←</button>
+  <span id="counter">01 / 10</span>
+  <button class="nav-btn" id="btn-next">→</button>
+</div>
+
+<div id="signature">oyurygarcia</div>
+<div id="hint">clique para avançar</div>
+
+<script>
+  const slides = document.querySelectorAll('.slide');
+  const totalSlides = slides.length;
+  let current = 0;
+  let revealHistory = []; // tracks {slideIndex, stepEl} for undo
+
+  function getSteps(slideEl) {
+    return Array.from(slideEl.querySelectorAll('[data-step]'))
+      .sort((a, b) => +a.dataset.step - +b.dataset.step);
+  }
+
+  function showSlide(index) {
+    slides.forEach(s => s.classList.remove('active'));
+    slides[index].classList.add('active');
+
+    // reveal step 0 immediately
+    const steps = getSteps(slides[index]);
+    steps.forEach(s => s.classList.remove('revealed'));
+    if (steps[0]) {
+      requestAnimationFrame(() => steps[0].classList.add('revealed'));
+    }
+
+    revealHistory = revealHistory.filter(h => h.slideIndex !== index);
+    updateCounter();
+    updateHint();
+  }
+
+  function nextRevealOrSlide() {
+    const slideEl = slides[current];
+    const steps = getSteps(slideEl);
+    const unrevealed = steps.filter(s => !s.classList.contains('revealed'));
+
+    if (unrevealed.length > 0) {
+      const next = unrevealed[0];
+      next.classList.add('revealed');
+      revealHistory.push({ slideIndex: current, stepEl: next });
+      updateHint();
+    } else {
+      if (current < totalSlides - 1) {
+        current++;
+        showSlide(current);
+      }
+    }
+  }
+
+  function undoLastReveal() {
+    // find last reveal on current slide
+    const onCurrent = revealHistory.filter(h => h.slideIndex === current && +h.stepEl.dataset.step !== 0);
+    if (onCurrent.length > 0) {
+      const last = onCurrent[onCurrent.length - 1];
+      last.stepEl.classList.remove('revealed');
+      revealHistory = revealHistory.filter(h => h !== last);
+      updateHint();
+    } else {
+      // go to previous slide
+      if (current > 0) {
+        current--;
+        showSlide(current);
+        // reveal all steps of previous slide
+        const steps = getSteps(slides[current]);
+        steps.forEach(s => {
+          s.classList.add('revealed');
+          revealHistory.push({ slideIndex: current, stepEl: s });
+        });
+        updateHint();
+      }
+    }
+  }
+
+  function updateCounter() {
+    document.getElementById('counter').textContent =
+      String(current + 1).padStart(2, '0') + ' / ' + String(totalSlides).padStart(2, '0');
+  }
+
+  function updateHint() {
+    const hint = document.getElementById('hint');
+    const slideEl = slides[current];
+    const steps = getSteps(slideEl);
+    const unrevealed = steps.filter(s => !s.classList.contains('revealed'));
+    hint.style.opacity = (unrevealed.length > 0 || current < totalSlides - 1) ? '1' : '0';
+  }
+
+  // Events
+  document.getElementById('btn-next').addEventListener('click', e => { e.stopPropagation(); nextRevealOrSlide(); });
+  document.getElementById('btn-prev').addEventListener('click', e => { e.stopPropagation(); undoLastReveal(); });
+
+  document.getElementById('slideshow').addEventListener('click', () => nextRevealOrSlide());
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === ' ') nextRevealOrSlide();
+    if (e.key === 'ArrowLeft') undoLastReveal();
+  });
+
+  // Init
+  showSlide(0);
+</script>
+</body>
+</html>

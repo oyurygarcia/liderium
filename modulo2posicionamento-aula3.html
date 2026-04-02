@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Pirâmide da Autoridade · Liderium</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0E1117;
+    --white: #FFFFFF;
+    --orange: #C4833A;
+    --grey: #4A5568;
+    --grey-light: #718096;
+    --card-bg: #161B27;
+    --card-border: #1E2533;
+  }
+
+  html, body {
+    width: 100%; height: 100%;
+    background: var(--bg);
+    color: var(--white);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    overflow: hidden;
+  }
+
+  #slideshow {
+    width: 100vw; height: 100vh;
+    position: relative;
+  }
+
+  .slide {
+    position: absolute;
+    inset: 0;
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    padding: 72px 96px;
+    opacity: 0;
+    transition: opacity .4s ease;
+  }
+  .slide.active {
+    display: flex;
+    opacity: 1;
+  }
+
+  /* ── REVEAL SYSTEM ── */
+  [data-step] {
+    opacity: 0 !important;
+    transform: translateY(10px) !important;
+    transition: opacity .45s ease, transform .45s ease !important;
+    pointer-events: none !important;
+  }
+  [data-step].revealed {
+    opacity: 1 !important;
+    transform: translateY(0) !important;
+    pointer-events: auto !important;
+  }
+
+  /* ── TYPOGRAPHY ── */
+  h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(2.4rem, 5vw, 3.8rem);
+    font-weight: 400;
+    line-height: 1.15;
+    color: var(--white);
+  }
+  h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(1.7rem, 3.2vw, 2.5rem);
+    font-weight: 400;
+    line-height: 1.2;
+    color: var(--white);
+  }
+  .subtitle-lead {
+    font-family: 'DM Serif Display', serif;
+    font-style: italic;
+    font-size: clamp(1rem, 1.8vw, 1.3rem);
+    color: var(--orange);
+    margin-top: 10px;
+    line-height: 1.5;
+  }
+  .body-text {
+    font-size: clamp(.88rem, 1.4vw, 1.05rem);
+    color: var(--white);
+    line-height: 1.75;
+    font-weight: 300;
+  }
+  .slide-tag {
+    font-size: .72rem;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--grey);
+    margin-bottom: 18px;
+  }
+  .divider {
+    width: 44px; height: 2px;
+    background: var(--orange);
+    margin-bottom: 18px;
+  }
+
+  /* ── ITEM LIST ── */
+  .item-list {
+    list-style: none;
+    margin-top: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .item-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    font-size: clamp(.85rem, 1.35vw, 1rem);
+    line-height: 1.6;
+    font-weight: 300;
+  }
+  .dot {
+    width: 6px; height: 6px;
+    background: var(--orange);
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-top: 8px;
+  }
+
+  /* ── ELEMENT BLOCK ── */
+  .element-block {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-left: 3px solid var(--orange);
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin-top: 12px;
+  }
+  .element-title {
+    font-size: clamp(.82rem, 1.25vw, .95rem);
+    font-weight: 500;
+    color: var(--orange);
+    margin-bottom: 4px;
+  }
+  .element-desc {
+    font-size: clamp(.75rem, 1.1vw, .87rem);
+    color: var(--white);
+    line-height: 1.55;
+    font-weight: 300;
+  }
+
+  /* ── NAV ── */
+  #nav {
+    position: fixed;
+    bottom: 32px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    z-index: 100;
+  }
+  .nav-btn {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: #1a2030;
+    border: 1px solid #2a3348;
+    color: var(--white);
+    font-size: 1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background .2s, border-color .2s;
+    line-height: 1;
+  }
+  .nav-btn:hover {
+    background: #232d42;
+    border-color: var(--orange);
+  }
+  #counter {
+    font-size: .72rem;
+    color: var(--grey);
+    letter-spacing: .06em;
+    min-width: 52px;
+    text-align: center;
+  }
+
+  /* ── SIGNATURE ── */
+  #signature {
+    position: fixed;
+    bottom: 40px; left: 40px;
+    font-size: .7rem;
+    letter-spacing: .1em;
+    color: var(--grey);
+  }
+
+  /* ── CLICK HINT ── */
+  #hint {
+    position: fixed;
+    bottom: 40px;
+    right: 40px;
+    font-size: .68rem;
+    letter-spacing: .1em;
+    color: var(--grey);
+    text-transform: uppercase;
+    opacity: 1;
+    transition: opacity .5s;
+  }
+
+  /* ── CAPA ── */
+  .capa-module {
+    font-size: .8rem;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--orange);
+    margin-bottom: 20px;
+  }
+  .capa-by {
+    font-size: .75rem;
+    letter-spacing: .1em;
+    color: var(--grey);
+    margin-top: 20px;
+  }
+  .capa-line {
+    width: 60px; height: 1px;
+    background: var(--grey);
+    margin: 16px 0;
+  }
+
+  /* ── TASK BOX ── */
+  .task-box {
+    background: var(--card-bg);
+    border: 1px solid var(--orange);
+    border-radius: 12px;
+    padding: 36px 40px;
+    max-width: 680px;
+    margin-top: 24px;
+  }
+  .task-label {
+    font-size: .7rem;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--orange);
+    margin-bottom: 14px;
+  }
+  .task-text {
+    font-size: clamp(.95rem, 1.5vw, 1.15rem);
+    line-height: 1.7;
+    font-weight: 300;
+    color: var(--white);
+  }
+
+  .hl { color: var(--orange); }
+</style>
+</head>
+<body>
+
+<div id="slideshow">
+
+  <!-- ══════════════════════════════════
+       S1 — O QUE É AUTORIDADE
+  ══════════════════════════════════ -->
+  <div class="slide" data-slide="1">
+    <div data-step="0">
+      <div class="slide-tag">01 — Autoridade</div>
+      <div class="divider"></div>
+      <h2>Autoridade</h2>
+    </div>
+
+    <div class="element-block" data-step="1">
+      <div class="element-desc">
+        Autoridade é um sistema de crenças que legitima o seu poder ou lugar de fala dentro do ambiente corporativo.
+      </div>
+    </div>
+
+    <div class="element-block" data-step="2">
+      <div class="element-desc">
+        Autoridade construída fortalece sua imagem como alguém de maior <span class="hl">relevância</span>, <span class="hl">alcance</span> e <span class="hl">impacto</span> dentro da organização.
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       S2 — PIRÂMIDE DA AUTORIDADE
+  ══════════════════════════════════ -->
+  <div class="slide" data-slide="2">
+    <div data-step="0">
+      <div class="slide-tag">02 — A pirâmide</div>
+      <div class="divider"></div>
+      <h2>Pirâmide da Autoridade</h2>
+
+      <!-- HEADER fixo, fora do reveal -->
+      <div style="display:grid; grid-template-columns: 260px 1fr 1fr; gap:0; margin-top:20px; padding-bottom:8px; border-bottom:1px solid var(--card-border);">
+        <div></div>
+        <div style="font-size:.65rem; letter-spacing:.1em; text-transform:uppercase; color:var(--orange); text-align:center; padding-right:16px;">O que é?</div>
+        <div style="font-size:.65rem; letter-spacing:.1em; text-transform:uppercase; color:var(--orange); text-align:center; padding-left:16px;">Como você valida?</div>
+      </div>
+    </div>
+
+    <!-- NÍVEL 1 — base, maior, revela primeiro -->
+    <div data-step="1" style="display:grid; grid-template-columns: 260px 1fr 1fr; gap:0; padding:9px 0; border-bottom:1px solid var(--card-border); align-items:center;">
+      <div>
+        <div style="width:260px; background:#342217; border-radius:4px; padding:7px 8px; text-align:center;">
+          <div style="font-family:'DM Serif Display',serif; font-size:.78rem; color:var(--white);">1 · Você comunica seu conhecimento</div>
+        </div>
+      </div>
+      <div style="font-size:.8rem; color:var(--white); font-weight:300; line-height:1.5; text-align:center; padding-right:16px;">Você diz aquilo que sabe.</div>
+      <div style="font-size:.8rem; color:var(--white); font-weight:300; line-height:1.5; text-align:center; padding-left:16px;">Há espaço para você falar e as pessoas ouvem.</div>
+    </div>
+
+    <!-- NÍVEL 2 -->
+    <div data-step="2" style="display:grid; grid-template-columns: 260px 1fr 1fr; gap:0; padding:9px 0; border-bottom:1px solid var(--card-border); align-items:center;">
+      <div>
+        <div style="width:225px; background:#3f2c1a; border-radius:4px; padding:7px 8px; text-align:center;">
+          <div style="font-family:'DM Serif Display',serif; font-size:.78rem; color:var(--white);">2 · As pessoas acreditam nas suas habilidades</div>
+        </div>
+      </div>
+      <div style="font-size:.8rem; color:var(--white); font-weight:300; line-height:1.5; text-align:center; padding-right:16px;">Há uma crença de que você é capaz.</div>
+      <div style="font-size:.8rem; color:var(--white); font-weight:300; line-height:1.5; text-align:center; padding-left:16px;">As pessoas buscam sua opinião antes de decidir.</div>
+    </div>
+
+    <!-- NÍVEL 3 -->
+    <div data-step="3" style="display:grid; grid-template-columns: 260px 1fr 1fr; gap:0; padding:9px 0; border-bottom:1px solid var(--card-border); align-items:center;">
+      <div>
+        <div style="width:190px; background:#5a3d20; border-radius:4px; padding:7px 8px; text-align:center;">
+          <div style="font-family:'DM Serif Display',serif; font-size:.78rem; color:var(--white);">3 · As pessoas reconhecem suas habilidades</div>
+        </div>
+      </div>
+      <div style="font-size:.8rem; color:var(--white); font-weight:300; line-height:1.5; text-align:center; padding-right:16px;">Há uma evidência de que você é capaz.</div>
+      <div style="font-size:.8rem; color:var(--white); font-weight:300; line-height:1.5; text-align:center; padding-left:16px;">Seu nome é citado como referência no tema.</div>
+    </div>
+
+    <!-- NÍVEL 4 -->
+    <div data-step="4" style="display:grid; grid-template-columns: 260px 1fr 1fr; gap:0; padding:9px 0; border-bottom:1px solid var(--card-border); align-items:center;">
+      <div>
+        <div style="width:155px; background:#7a5228; border-radius:4px; padding:7px 8px; text-align:center;">
+          <div style="font-family:'DM Serif Display',serif; font-size:.78rem; color:var(--white);">4 · Te seguem pelas suas habilidades</div>
+        </div>
+      </div>
+      <div style="font-size:.8rem; color:var(--white); font-weight:300; line-height:1.5; text-align:center; padding-right:16px;">Sólido reconhecimento como autoridade em um tema.</div>
+      <div style="font-size:.8rem; color:var(--white); font-weight:300; line-height:1.5; text-align:center; padding-left:16px;">As pessoas te seguem pela entrega e resultado concretos.</div>
+    </div>
+
+    <!-- NÍVEL 5 — topo, menor, revela por último -->
+    <div data-step="5" style="display:grid; grid-template-columns: 260px 1fr 1fr; gap:0; padding:9px 0; align-items:center;">
+      <div>
+        <div style="width:120px; background:var(--orange); border-radius:4px; padding:7px 8px; text-align:center;">
+          <div style="font-family:'DM Serif Display',serif; font-size:.78rem; color:var(--bg);">5 · Te seguem apesar das suas habilidades</div>
+        </div>
+      </div>
+      <div style="font-size:.8rem; color:var(--white); font-weight:300; line-height:1.5; text-align:center; padding-right:16px;">Sólido reconhecimento como figura de autoridade.</div>
+      <div style="font-size:.8rem; color:var(--white); font-weight:300; line-height:1.5; text-align:center; padding-left:16px;">As pessoas confiam em você independentemente do resultado.</div>
+    </div>
+
+  </div>
+
+  <!-- ══════════════════════════════════
+       S3 — TAREFA
+  ══════════════════════════════════ -->
+  <div class="slide" data-slide="3">
+    <div data-step="0">
+      <div class="slide-tag">03 — Tarefa</div>
+      <div class="divider"></div>
+      <h2>Tarefa</h2>
+    </div>
+
+    <div class="task-box" data-step="1">
+      <div class="task-label">Ação</div>
+      <p class="task-text">
+        Mapeie seu estágio de autoridade por pessoa.
+      </p>
+    </div>
+  </div>
+
+</div><!-- /#slideshow -->
+
+<!-- ── NAV ── -->
+<div id="nav">
+  <button class="nav-btn" id="btn-prev">←</button>
+  <span id="counter">01 / 03</span>
+  <button class="nav-btn" id="btn-next">→</button>
+</div>
+
+<div id="signature">oyurygarcia</div>
+<div id="hint">clique para avançar</div>
+
+<script>
+  const slides = document.querySelectorAll('.slide');
+  const totalSlides = slides.length;
+  let current = 0;
+  let revealHistory = [];
+
+  function getSteps(slideEl) {
+    return Array.from(slideEl.querySelectorAll('[data-step]'))
+      .sort((a, b) => +a.dataset.step - +b.dataset.step);
+  }
+
+  function showSlide(index) {
+    slides.forEach(s => s.classList.remove('active'));
+    slides[index].classList.add('active');
+    const steps = getSteps(slides[index]);
+    steps.forEach(s => s.classList.remove('revealed'));
+    if (steps[0]) requestAnimationFrame(() => steps[0].classList.add('revealed'));
+    revealHistory = revealHistory.filter(h => h.slideIndex !== index);
+    updateCounter();
+    updateHint();
+  }
+
+  function nextRevealOrSlide() {
+    const slideEl = slides[current];
+    const steps = getSteps(slideEl);
+    const unrevealed = steps.filter(s => !s.classList.contains('revealed'));
+    if (unrevealed.length > 0) {
+      const next = unrevealed[0];
+      next.classList.add('revealed');
+      revealHistory.push({ slideIndex: current, stepEl: next });
+      updateHint();
+    } else {
+      if (current < totalSlides - 1) { current++; showSlide(current); }
+    }
+  }
+
+  function undoLastReveal() {
+    const onCurrent = revealHistory.filter(h => h.slideIndex === current && +h.stepEl.dataset.step !== 0);
+    if (onCurrent.length > 0) {
+      const last = onCurrent[onCurrent.length - 1];
+      last.stepEl.classList.remove('revealed');
+      revealHistory = revealHistory.filter(h => h !== last);
+      updateHint();
+    } else {
+      if (current > 0) {
+        current--;
+        showSlide(current);
+        const steps = getSteps(slides[current]);
+        steps.forEach(s => {
+          s.classList.add('revealed');
+          revealHistory.push({ slideIndex: current, stepEl: s });
+        });
+        updateHint();
+      }
+    }
+  }
+
+  function updateCounter() {
+    document.getElementById('counter').textContent =
+      String(current + 1).padStart(2, '0') + ' / ' + String(totalSlides).padStart(2, '0');
+  }
+
+  function updateHint() {
+    const hint = document.getElementById('hint');
+    const steps = getSteps(slides[current]);
+    const unrevealed = steps.filter(s => !s.classList.contains('revealed'));
+    hint.style.opacity = (unrevealed.length > 0 || current < totalSlides - 1) ? '1' : '0';
+  }
+
+  document.getElementById('btn-next').addEventListener('click', e => { e.stopPropagation(); nextRevealOrSlide(); });
+  document.getElementById('btn-prev').addEventListener('click', e => { e.stopPropagation(); undoLastReveal(); });
+  document.getElementById('slideshow').addEventListener('click', () => nextRevealOrSlide());
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === ' ') nextRevealOrSlide();
+    if (e.key === 'ArrowLeft') undoLastReveal();
+  });
+
+  showSlide(0);
+</script>
+</body>
+</html>

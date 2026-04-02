@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Negociação é a arte do posicionamento · Liderium</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0E1117;
+    --white: #FFFFFF;
+    --orange: #C4833A;
+    --grey: #4A5568;
+    --grey-light: #718096;
+    --card-bg: #161B27;
+    --card-border: #1E2533;
+  }
+
+  html, body {
+    width: 100%; height: 100%;
+    background: var(--bg);
+    color: var(--white);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    overflow: hidden;
+  }
+
+  #slideshow { width: 100vw; height: 100vh; position: relative; }
+
+  .slide {
+    position: absolute; inset: 0;
+    display: none; flex-direction: column;
+    justify-content: center;
+    padding: 72px 96px;
+    opacity: 0; transition: opacity .4s ease;
+  }
+  .slide.active { display: flex; opacity: 1; }
+
+  /* ── REVEAL ── */
+  [data-step] {
+    opacity: 0 !important;
+    transform: translateY(10px) !important;
+    transition: opacity .45s ease, transform .45s ease !important;
+    pointer-events: none !important;
+  }
+  [data-step].revealed {
+    opacity: 1 !important;
+    transform: translateY(0) !important;
+    pointer-events: auto !important;
+  }
+
+  /* ── TYPOGRAPHY ── */
+  h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(2.2rem, 4.5vw, 3.4rem);
+    font-weight: 400; line-height: 1.15; color: var(--white);
+  }
+  h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(1.7rem, 3.2vw, 2.5rem);
+    font-weight: 400; line-height: 1.2; color: var(--white);
+  }
+  .slide-tag {
+    font-size: .72rem; letter-spacing: .12em;
+    text-transform: uppercase; color: var(--grey); margin-bottom: 18px;
+  }
+  .divider { width: 44px; height: 2px; background: var(--orange); margin-bottom: 18px; }
+  .body-text {
+    font-size: clamp(.85rem, 1.35vw, 1rem);
+    color: var(--white); line-height: 1.7; font-weight: 300;
+  }
+
+  /* ── ELEMENT BLOCK ── */
+  .element-block {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-left: 3px solid var(--orange);
+    border-radius: 8px; padding: 14px 18px; margin-top: 12px;
+  }
+  .element-title {
+    font-size: clamp(.82rem, 1.25vw, .95rem);
+    font-weight: 500; color: var(--orange); margin-bottom: 4px;
+  }
+  .element-desc {
+    font-size: clamp(.78rem, 1.15vw, .92rem);
+    color: var(--white); line-height: 1.6; font-weight: 300;
+  }
+
+  /* ── COMPARE TABLE ── */
+  .compare-table {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+  .compare-header {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--card-border);
+  }
+  .compare-header-cell {
+    font-size: .65rem; letter-spacing: .1em;
+    text-transform: uppercase; color: var(--orange);
+    text-align: center; padding: 0 12px;
+  }
+  .compare-header-cell:last-child {
+    border-left: 1px solid var(--card-border);
+  }
+  .compare-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    border-bottom: 1px solid var(--card-border);
+  }
+  .compare-row:last-child { border-bottom: none; }
+  .compare-cell {
+    font-size: clamp(.75rem, 1.1vw, .87rem);
+    color: var(--white); font-weight: 300;
+    line-height: 1.55; padding: 10px 12px;
+  }
+  .compare-cell:last-child {
+    border-left: 1px solid var(--card-border);
+    color: var(--orange);
+  }
+  /* células SC em branco, LE em laranja sutil */
+  .compare-cell.sc { color: var(--grey-light); }
+  .compare-cell.le { color: var(--white); }
+
+  /* ── PIAF ── */
+  .piaf-row {
+    display: grid;
+    grid-template-columns: 28px 160px 1fr;
+    gap: 0 16px;
+    padding: 11px 0;
+    border-bottom: 1px solid var(--card-border);
+    align-items: start;
+  }
+  .piaf-row:last-child { border-bottom: none; }
+  .piaf-letter {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.3rem; color: var(--orange);
+    line-height: 1;
+  }
+  .piaf-label {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(.9rem, 1.4vw, 1.05rem);
+    color: var(--white); line-height: 1.4;
+  }
+  .piaf-desc {
+    font-size: clamp(.78rem, 1.15vw, .9rem);
+    color: var(--white); font-weight: 300; line-height: 1.55;
+  }
+
+  /* ── EXEMPLO ── */
+  .exemplo-col {
+    display: flex; flex-direction: column; gap: 10px;
+  }
+  .exemplo-step {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 8px; padding: 12px 14px;
+  }
+  .exemplo-step-label {
+    font-size: .62rem; letter-spacing: .1em;
+    text-transform: uppercase; color: var(--orange); margin-bottom: 4px;
+  }
+  .exemplo-step-sc {
+    font-size: clamp(.75rem, 1.1vw, .86rem);
+    color: var(--grey-light); font-weight: 300; line-height: 1.5;
+    margin-bottom: 6px;
+  }
+  .exemplo-step-le {
+    font-size: clamp(.75rem, 1.1vw, .86rem);
+    color: var(--white); font-weight: 300; line-height: 1.5;
+  }
+  .sc-tag {
+    font-size: .6rem; letter-spacing: .08em;
+    text-transform: uppercase; color: var(--grey);
+    margin-bottom: 2px;
+  }
+  .le-tag {
+    font-size: .6rem; letter-spacing: .08em;
+    text-transform: uppercase; color: var(--orange);
+    margin-bottom: 2px;
+  }
+
+  /* ── CAPA ── */
+  .capa-module {
+    font-size: .8rem; letter-spacing: .14em;
+    text-transform: uppercase; color: var(--orange); margin-bottom: 20px;
+  }
+  .capa-line { width: 60px; height: 1px; background: var(--grey); margin: 16px 0; }
+  .capa-by { font-size: .75rem; letter-spacing: .1em; color: var(--grey); margin-top: 20px; }
+
+  /* ── TASK BOX ── */
+  .task-box {
+    background: var(--card-bg); border: 1px solid var(--orange);
+    border-radius: 12px; padding: 36px 40px;
+    max-width: 720px; margin-top: 24px;
+  }
+  .task-label {
+    font-size: .7rem; letter-spacing: .12em;
+    text-transform: uppercase; color: var(--orange); margin-bottom: 14px;
+  }
+  .task-text {
+    font-size: clamp(.95rem, 1.5vw, 1.15rem);
+    line-height: 1.7; font-weight: 300; color: var(--white);
+  }
+
+  /* ── NAV ── */
+  #nav {
+    position: fixed; bottom: 32px; left: 50%;
+    transform: translateX(-50%);
+    display: flex; align-items: center; gap: 20px; z-index: 100;
+  }
+  .nav-btn {
+    width: 44px; height: 44px; border-radius: 50%;
+    background: #1a2030; border: 1px solid #2a3348;
+    color: var(--white); font-size: 1rem; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: background .2s, border-color .2s;
+  }
+  .nav-btn:hover { background: #232d42; border-color: var(--orange); }
+  #counter {
+    font-size: .72rem; color: var(--grey);
+    letter-spacing: .06em; min-width: 52px; text-align: center;
+  }
+  #signature {
+    position: fixed; bottom: 40px; left: 40px;
+    font-size: .7rem; letter-spacing: .1em; color: var(--grey);
+  }
+  #hint {
+    position: fixed; bottom: 40px; right: 40px;
+    font-size: .68rem; letter-spacing: .1em;
+    color: var(--grey); text-transform: uppercase; transition: opacity .5s;
+  }
+  .hl { color: var(--orange); }
+</style>
+</head>
+<body>
+
+<div id="slideshow">
+
+  <!-- ══════════════════════════════════
+       S1 — CAPA
+  ══════════════════════════════════ -->
+  <div class="slide" data-slide="1">
+    <div data-step="0">
+      <div class="capa-module">Módulo 2 · Posicionamento</div>
+      <div class="divider"></div>
+      <h1>Negociação é a<br>arte do posicionamento</h1>
+      <div class="capa-line"></div>
+      <div class="capa-by">por oyurygarcia</div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       S2 — POR QUE NEGOCIAÇÃO?
+  ══════════════════════════════════ -->
+  <div class="slide" data-slide="2">
+    <div data-step="0">
+      <div class="slide-tag">02 — Por que negociação?</div>
+      <div class="divider"></div>
+      <h2>Por que negociação?</h2>
+    </div>
+
+    <div class="element-block" data-step="1">
+      <div class="element-desc">
+        Negociação é o processo pelo qual duas ou mais partes entendem caminhos para chegar em um ponto de entendimento mesmo com interesses parcialmente diferentes.
+      </div>
+    </div>
+
+    <div class="element-block" data-step="2">
+      <div class="element-title">Negociação é sobre maximizar capital político líquido</div>
+      <div class="element-desc" style="margin-top: 6px;">
+        Toda negociação impacta <span class="hl">(1)</span> o capital político do tema a ser negociado e <span class="hl">(2)</span> o capital político da pessoa com quem se negocia.
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       S3 — SENSO COMUM vs LÍDER ESTRATÉGICO
+  ══════════════════════════════════ -->
+  <div class="slide" data-slide="3">
+    <div data-step="0">
+      <div class="slide-tag">03 — Senso comum vs líder estratégico</div>
+      <div class="divider"></div>
+      <h2>Senso comum vs Líder estratégico</h2>
+    </div>
+
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:20px;">
+
+      <!-- COLUNA SC -->
+      <div style="display:flex; flex-direction:column; gap:8px;">
+        <div data-step="1" style="font-size:.65rem; letter-spacing:.1em; text-transform:uppercase; color:var(--grey); padding-bottom:6px; border-bottom:1px solid var(--card-border);">Senso comum</div>
+
+        <div class="exemplo-step" data-step="2">
+          <div class="exemplo-step-sc">Está focado na sua necessidade específica.</div>
+        </div>
+        <div class="exemplo-step" data-step="4">
+          <div class="exemplo-step-sc">Encontra o caminho necessário para conseguir o que quer.</div>
+        </div>
+      </div>
+
+      <!-- COLUNA LE -->
+      <div style="display:flex; flex-direction:column; gap:8px;">
+        <div data-step="1" style="font-size:.65rem; letter-spacing:.1em; text-transform:uppercase; color:var(--orange); padding-bottom:6px; border-bottom:1px solid var(--card-border);">Líder estratégico</div>
+
+        <div class="exemplo-step" data-step="3" style="border-left-color:var(--orange);">
+          <div class="exemplo-step-le">Está atento para entender o que vai mais gerar valor no longo prazo.</div>
+        </div>
+        <div class="exemplo-step" data-step="5" style="border-left-color:var(--orange);">
+          <div class="exemplo-step-le">Avalia e pondera os caminhos que vão trazer o melhor retorno para o tema a ser negociado (T) e com a pessoa com quem se negocia (P).</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       S4 — EXEMPLO PRÁTICO
+  ══════════════════════════════════ -->
+  <div class="slide" data-slide="4">
+    <div data-step="0">
+      <div class="slide-tag">04 — Exemplo prático</div>
+      <div class="divider"></div>
+      <h2>Um exemplo real</h2>
+    </div>
+
+    <p class="body-text" data-step="1" style="margin-top:12px; font-size:clamp(.8rem,1.2vw,.92rem);">
+      Um stakeholder pede a antecipação de um prazo em um projeto que diz ser crucial para uma entrega maior e prioritária. Você e sua equipe estão com outras prioridades.
+    </p>
+
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:16px;">
+
+      <div style="display:flex; flex-direction:column; gap:8px;">
+        <div data-step="2" style="font-size:.65rem; letter-spacing:.1em; text-transform:uppercase; color:var(--grey); padding-bottom:6px; border-bottom:1px solid var(--card-border);">Senso comum</div>
+
+        <div class="exemplo-step" data-step="3">
+          <div class="exemplo-step-label">Pensamento</div>
+          <div class="exemplo-step-sc">O que preciso fazer para postergar essa entrega?</div>
+        </div>
+        <div class="exemplo-step" data-step="4">
+          <div class="exemplo-step-label">Ponderação</div>
+          <div class="exemplo-step-sc">Estamos com a agenda muito cheia, vou dizer que não temos tempo.</div>
+        </div>
+        <div class="exemplo-step" data-step="6">
+          <div class="exemplo-step-label">Antecipação</div>
+          <div class="exemplo-step-sc">Ele insiste que precisa antecipar, vai sobrecarregar meu time.</div>
+        </div>
+        <div class="exemplo-step" data-step="8">
+          <div class="exemplo-step-label">Visão de negócio</div>
+          <div class="exemplo-step-sc">Toda vez é assim, demandas de última hora, não dá mais…</div>
+        </div>
+      </div>
+
+      <div style="display:flex; flex-direction:column; gap:8px;">
+        <div data-step="2" style="font-size:.65rem; letter-spacing:.1em; text-transform:uppercase; color:var(--orange); padding-bottom:6px; border-bottom:1px solid var(--card-border);">Líder estratégico</div>
+
+        <div class="exemplo-step" data-step="3" style="border-left-color:var(--orange);">
+          <div class="exemplo-step-label" style="color:var(--orange);">Pensamento</div>
+          <div class="exemplo-step-le">O que preciso saber para entender melhor o impacto disso em T e em P?</div>
+        </div>
+        <div class="exemplo-step" data-step="5" style="border-left-color:var(--orange);">
+          <div class="exemplo-step-label" style="color:var(--orange);">Ponderação</div>
+          <div class="exemplo-step-le">Essa entrega parece bastante relevante e esse é um stakeholder chave.</div>
+        </div>
+        <div class="exemplo-step" data-step="7" style="border-left-color:var(--orange);">
+          <div class="exemplo-step-label" style="color:var(--orange);">Antecipação</div>
+          <div class="exemplo-step-le">Tenho outras entregas com prazo apertado, mas o custo de capital político é maior com esse stakeholder. Vou direcionar alguém da equipe para essa entrega.</div>
+        </div>
+        <div class="exemplo-step" data-step="9" style="border-left-color:var(--orange);">
+          <div class="exemplo-step-label" style="color:var(--orange);">Visão de negócio</div>
+          <div class="exemplo-step-le">Redirecionei a equipe. O stakeholder ficou bem feliz e negociei condições específicas. Isso fortaleceu nossa relação.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       S5 — PONDERANDO
+  ══════════════════════════════════ -->
+  <div class="slide" data-slide="5">
+    <div data-step="0">
+      <div class="slide-tag">05 — Ponderando</div>
+      <div class="divider"></div>
+      <h2>Ponderando</h2>
+
+      <!-- header fixo -->
+      <div style="display:grid; grid-template-columns:1fr 120px; gap:0; margin-top:20px; padding-bottom:8px; border-bottom:1px solid var(--card-border);">
+        <div style="font-size:.65rem; letter-spacing:.1em; text-transform:uppercase; color:var(--grey);">Avaliação</div>
+        <div style="font-size:.65rem; letter-spacing:.1em; text-transform:uppercase; color:var(--orange); text-align:center;">Resultado</div>
+      </div>
+    </div>
+
+    <div data-step="1" style="display:grid; grid-template-columns:1fr 120px; padding:10px 0; border-bottom:1px solid var(--card-border); align-items:center;">
+      <div class="element-desc">Qual o esforço para mudar a rota do time?</div>
+      <div style="font-size:clamp(.75rem,1.1vw,.88rem); color:var(--orange); text-align:center; font-weight:400;">Médio (contornável)</div>
+    </div>
+
+    <div data-step="2" style="display:grid; grid-template-columns:1fr 120px; padding:10px 0; border-bottom:1px solid var(--card-border); align-items:center;">
+      <div class="element-desc">Qual o impacto se eu atrasar o projeto anterior? (para o projeto e para os stakeholders)</div>
+      <div style="font-size:clamp(.75rem,1.1vw,.88rem); color:var(--orange); text-align:center; font-weight:400;">Projeto: baixo<br>Stakeholders: médio-baixo</div>
+    </div>
+
+    <div data-step="3" style="display:grid; grid-template-columns:1fr 120px; padding:10px 0; border-bottom:1px solid var(--card-border); align-items:center;">
+      <div class="element-desc">Qual o impacto se eu priorizar o projeto novo? (para o projeto e para os stakeholders)</div>
+      <div style="font-size:clamp(.75rem,1.1vw,.88rem); color:var(--orange); text-align:center; font-weight:400;">Tema (T): alto<br>Pessoas (P): altíssimo</div>
+    </div>
+
+    <div data-step="4" style="display:grid; grid-template-columns:1fr 120px; padding:10px 0; border-bottom:1px solid var(--card-border); align-items:center;">
+      <div class="element-desc">Impacto no moral da equipe</div>
+      <div style="font-size:clamp(.75rem,1.1vw,.88rem); color:var(--orange); text-align:center; font-weight:400;">Médio</div>
+    </div>
+
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:14px;">
+      <div class="element-block" data-step="5" style="border-left-color:var(--grey-light);">
+        <div class="element-title" style="color:var(--grey-light);">Senso comum</div>
+        <div class="element-desc">Deixou capital político na mesa. Se enfraqueceu perante um stakeholder importante com um custo de oportunidade baixo.</div>
+      </div>
+      <div class="element-block" data-step="6">
+        <div class="element-title">Líder estratégico</div>
+        <div class="element-desc">Capitalizou o máximo possível. Teve algumas baixas contornáveis, mas está melhor posicionado na organização.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       S6 — MÉTODO T-PIAF
+  ══════════════════════════════════ -->
+  <div class="slide" data-slide="6">
+    <div data-step="0">
+      <div class="slide-tag">06 — Método T-PIAF</div>
+      <div class="divider"></div>
+      <h2>Método T-PIAF</h2>
+    </div>
+
+    <div style="margin-top: 20px;">
+
+      <div class="piaf-row" data-step="1">
+        <div class="piaf-letter">T</div>
+        <div class="piaf-label">Tema</div>
+        <div class="piaf-desc">O quanto o tema negociado é importante? Temas importantes requerem mais consideração.</div>
+      </div>
+
+      <div class="piaf-row" data-step="2">
+        <div class="piaf-letter">P</div>
+        <div class="piaf-label">Pessoa</div>
+        <div class="piaf-desc">O quanto essa relação é relevante? Qual nível de poder (e capital político) que essa pessoa tem?</div>
+      </div>
+
+      <div class="piaf-row" data-step="3">
+        <div class="piaf-letter">I</div>
+        <div class="piaf-label">Interesses reais</div>
+        <div class="piaf-desc">O que essa pessoa realmente precisa? O que está por trás daquilo que ela está te pedindo?</div>
+      </div>
+
+      <div class="piaf-row" data-step="4">
+        <div class="piaf-letter">A</div>
+        <div class="piaf-label">Alternativas</div>
+        <div class="piaf-desc">Quais são os caminhos? O que posso propor e negociar aqui?</div>
+      </div>
+
+      <div class="piaf-row" data-step="5">
+        <div class="piaf-letter">F</div>
+        <div class="piaf-label">Fechamento</div>
+        <div class="piaf-desc">Fechamento forte. Sempre que possível ter o stakeholder comprado. Caso não seja possível, fazer as amarrações necessárias para não perder capital político.</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       S7 — TAREFA
+  ══════════════════════════════════ -->
+  <div class="slide" data-slide="7">
+    <div data-step="0">
+      <div class="slide-tag">07 — Tarefa</div>
+      <div class="divider"></div>
+      <h2>Tarefa</h2>
+    </div>
+
+    <div class="task-box" data-step="1">
+      <div class="task-label">Ação</div>
+      <p class="task-text">
+        Preencha o formulário de autoavaliação de uma situação real.<br><br>
+        Que aprendizado você tirou dessa situação?
+      </p>
+    </div>
+  </div>
+
+</div><!-- /#slideshow -->
+
+<div id="nav">
+  <button class="nav-btn" id="btn-prev">←</button>
+  <span id="counter">01 / 07</span>
+  <button class="nav-btn" id="btn-next">→</button>
+</div>
+
+<div id="signature">oyurygarcia</div>
+<div id="hint">clique para avançar</div>
+
+<script>
+  const slides = document.querySelectorAll('.slide');
+  const totalSlides = slides.length;
+  let current = 0;
+  let revealHistory = [];
+
+  function getSteps(slideEl) {
+    return Array.from(slideEl.querySelectorAll('[data-step]'))
+      .sort((a, b) => +a.dataset.step - +b.dataset.step);
+  }
+
+  function showSlide(index) {
+    slides.forEach(s => s.classList.remove('active'));
+    slides[index].classList.add('active');
+    const steps = getSteps(slides[index]);
+    steps.forEach(s => s.classList.remove('revealed'));
+    if (steps[0]) requestAnimationFrame(() => steps[0].classList.add('revealed'));
+    revealHistory = revealHistory.filter(h => h.slideIndex !== index);
+    updateCounter();
+    updateHint();
+  }
+
+  function nextRevealOrSlide() {
+    const slideEl = slides[current];
+    const steps = getSteps(slideEl);
+    const unrevealed = steps.filter(s => !s.classList.contains('revealed'));
+    if (unrevealed.length > 0) {
+      const next = unrevealed[0];
+      next.classList.add('revealed');
+      revealHistory.push({ slideIndex: current, stepEl: next });
+      updateHint();
+    } else {
+      if (current < totalSlides - 1) { current++; showSlide(current); }
+    }
+  }
+
+  function undoLastReveal() {
+    const onCurrent = revealHistory.filter(h => h.slideIndex === current && +h.stepEl.dataset.step !== 0);
+    if (onCurrent.length > 0) {
+      const last = onCurrent[onCurrent.length - 1];
+      last.stepEl.classList.remove('revealed');
+      revealHistory = revealHistory.filter(h => h !== last);
+      updateHint();
+    } else {
+      if (current > 0) {
+        current--;
+        showSlide(current);
+        const steps = getSteps(slides[current]);
+        steps.forEach(s => {
+          s.classList.add('revealed');
+          revealHistory.push({ slideIndex: current, stepEl: s });
+        });
+        updateHint();
+      }
+    }
+  }
+
+  function updateCounter() {
+    document.getElementById('counter').textContent =
+      String(current + 1).padStart(2, '0') + ' / ' + String(totalSlides).padStart(2, '0');
+  }
+
+  function updateHint() {
+    const steps = getSteps(slides[current]);
+    const unrevealed = steps.filter(s => !s.classList.contains('revealed'));
+    document.getElementById('hint').style.opacity =
+      (unrevealed.length > 0 || current < totalSlides - 1) ? '1' : '0';
+  }
+
+  document.getElementById('btn-next').addEventListener('click', e => { e.stopPropagation(); nextRevealOrSlide(); });
+  document.getElementById('btn-prev').addEventListener('click', e => { e.stopPropagation(); undoLastReveal(); });
+  document.getElementById('slideshow').addEventListener('click', () => nextRevealOrSlide());
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === ' ') nextRevealOrSlide();
+    if (e.key === 'ArrowLeft') undoLastReveal();
+  });
+
+  showSlide(0);
+</script>
+</body>
+</html>
